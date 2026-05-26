@@ -1,16 +1,148 @@
 <!DOCTYPE html>
-    picker.addEventListener('change', function() {
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Daily Devotional</title>
+
+  <meta name="theme-color" content="#1f2937">
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f3f4f6;
+      padding: 20px;
+    }
+
+    .app {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .calendar-box {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    #content .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .date {
+      color: gray;
+      margin-bottom: 10px;
+    }
+
+    audio {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 15px;
+      background: #1f2937;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header>
+    <h1>Daily Devotional</h1>
+  </header>
+
+  <div class="calendar-box">
+    <label>Select Date</label>
+    <input type="date" id="calendarPicker">
+  </div>
+
+  <div id="content">Loading...</div>
+
+</div>
+
+<script>
+
+const FEED_URL =
+  "https://api.allorigins.win/raw?url=" +
+  encodeURIComponent("https://api.experience.odb.org/devotionals/podcast/?country=US");
+
+const devotionalMap = {};
+
+async function loadFeed() {
+
+  try {
+
+    const res = await fetch(FEED_URL);
+    const text = await res.text();
+
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, "text/xml");
+
+    const items = xml.querySelectorAll("item");
+
+    items.forEach(item => {
+
+      const title = item.querySelector("title")?.textContent;
+      const link = item.querySelector("link")?.textContent;
+      const desc = item.querySelector("description")?.textContent;
+      const pubDate = item.querySelector("pubDate")?.textContent;
+
+      const enclosure = item.querySelector("enclosure");
+      const audioUrl = enclosure ? enclosure.getAttribute("url") : null;
+
+      const date = new Date(pubDate);
+      const key =
+        date.getFullYear() +
+        "-" +
+        String(date.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(date.getDate()).padStart(2, "0");
+
+      devotionalMap[key] = {
+        title,
+        link,
+        description: desc,
+        pubDate,
+        audioUrl
+      };
+
+    });
+
+    const picker = document.getElementById("calendarPicker");
+
+    const dates = Object.keys(devotionalMap).sort().reverse();
+
+    picker.max = dates[0];
+    picker.min = dates[dates.length - 1];
+    picker.value = dates[0];
+
+    renderDevotional(dates[0]);
+
+    picker.addEventListener("change", function () {
       renderDevotional(this.value);
     });
 
-  } catch(error) {
-
-    document.getElementById('content').innerHTML = `
-      <div class="card">
-        Failed to load devotional feed.
-      </div>
-    `;
-
+  } catch (error) {
+    document.getElementById("content").innerHTML =
+      "<div class='card'>Failed to load devotional</div>";
     console.error(error);
   }
 }
@@ -18,17 +150,11 @@
 function renderDevotional(dateKey) {
 
   const devotional = devotionalMap[dateKey];
-
-  const content = document.getElementById('content');
+  const content = document.getElementById("content");
 
   if (!devotional) {
-
-    content.innerHTML = `
-      <div class="card empty">
-        No devotional available for selected date.
-      </div>
-    `;
-
+    content.innerHTML =
+      "<div class='card'>No devotional available</div>";
     return;
   }
 
@@ -37,19 +163,17 @@ function renderDevotional(dateKey) {
 
       <h2>${devotional.title}</h2>
 
-      <div class="date">
-        ${devotional.pubDate}
-      </div>
+      <div class="date">${devotional.pubDate}</div>
 
       ${devotional.audioUrl ? `
         <audio controls>
           <source src="${devotional.audioUrl}" type="audio/mpeg">
         </audio>
-      ` : ''}
+      ` : ""}
 
-      <div class="summary">
-        ${devotional.description}
-      </div>
+      <div>${devotional.description}</div>
+
+      <br>
 
       <a class="btn" href="${devotional.link}" target="_blank">
         Read Full Devotional
@@ -61,8 +185,8 @@ function renderDevotional(dateKey) {
 
 loadFeed();
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
 }
 
 </script>
