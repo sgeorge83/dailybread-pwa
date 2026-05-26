@@ -49,16 +49,10 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     }
 
-    .date {
+    .date, .author {
       color: #6b7280;
+      font-size: 14px;
       margin-bottom: 5px;
-      font-size: 14px;
-    }
-
-    .author {
-      color: #6b7280;
-      margin-bottom: 10px;
-      font-size: 14px;
     }
 
     audio {
@@ -106,19 +100,16 @@
 
 <script>
 
-const ODB_URL =
-  "https://api.experience.odb.org/devotionals/podcast/?country=US";
-
 const FEED_URL =
   "https://api.codetabs.com/v1/proxy?quest=" +
-  encodeURIComponent(ODB_URL);
+  encodeURIComponent(
+    "https://api.experience.odb.org/devotionals/podcast/?country=US"
+  );
 
 const devotionalMap = {};
 
 async function loadFeed() {
   try {
-
-    console.log("Fetching:", FEED_URL);
 
     const res = await fetch(FEED_URL);
     const xmlText = await res.text();
@@ -141,25 +132,21 @@ async function loadFeed() {
       const enclosure = item.querySelector("enclosure");
       const audioUrl = enclosure ? enclosure.getAttribute("url") : null;
 
+      // FIXED: stable date key (IMPORTANT)
+      const d = new Date(pubDate);
+      const key = d.toISOString().split("T")[0];
+
+      // extract response + thought
       let response = "";
       let thought = "";
 
-      try {
-        const raw = item.textContent;
+      const raw = item.textContent;
 
-        const r = raw.match(/"response"\s*:\s*"([\s\S]*?)"/);
-        const t = raw.match(/"thought"\s*:\s*"([\s\S]*?)"/);
+      const r = raw.match(/"response"\s*:\s*"([\s\S]*?)"/);
+      const t = raw.match(/"thought"\s*:\s*"([\s\S]*?)"/);
 
-        if (r) response = r[1];
-        if (t) thought = t[1];
-      } catch (e) {}
-
-      const d = new Date(pubDate);
-
-      const key =
-        d.getFullYear() + "-" +
-        String(d.getMonth()+1).padStart(2,"0") + "-" +
-        String(d.getDate()).padStart(2,"0");
+      if (r) response = r[1];
+      if (t) thought = t[1];
 
       devotionalMap[key] = {
         title,
@@ -171,11 +158,16 @@ async function loadFeed() {
         response,
         thought
       };
-
     });
 
     const picker = document.getElementById("calendarPicker");
     const dates = Object.keys(devotionalMap).sort().reverse();
+
+    if (!dates.length) {
+      document.getElementById("content").innerHTML =
+        "<div class='card'>No data found from API</div>";
+      return;
+    }
 
     picker.max = dates[0];
     picker.min = dates[dates.length - 1];
@@ -200,7 +192,7 @@ function extractScripture(text) {
 }
 
 function cleanText(text) {
-  return text
+  return (text || "")
     .replace(/<[^>]*>/g, "")
     .replace(/&ldquo;|&rdquo;/g, '"')
     .replace(/&rsquo;/g, "'");
@@ -241,12 +233,12 @@ function renderDevotional(dateKey) {
         <div class="section">
 
           <strong>Reflect</strong>
-          <div>${cleanText(d.response || "")}</div>
+          <div>${cleanText(d.response)}</div>
 
           <br>
 
           <strong>Pray</strong>
-          <div>${cleanText(d.thought || "")}</div>
+          <div>${cleanText(d.thought)}</div>
 
         </div>
       ` : ""}
