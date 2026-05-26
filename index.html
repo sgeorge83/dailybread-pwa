@@ -106,13 +106,19 @@
 
 <script>
 
-const FEED_URL = "https://api.allorigins.win/raw?url=" +
-encodeURIComponent("https://api.experience.odb.org/devotionals/podcast/?country=US");
+const ODB_URL =
+  "https://api.experience.odb.org/devotionals/podcast/?country=US";
+
+const FEED_URL =
+  "https://api.codetabs.com/v1/proxy?quest=" +
+  encodeURIComponent(ODB_URL);
 
 const devotionalMap = {};
 
 async function loadFeed() {
   try {
+
+    console.log("Fetching:", FEED_URL);
 
     const res = await fetch(FEED_URL);
     const xmlText = await res.text();
@@ -135,7 +141,6 @@ async function loadFeed() {
       const enclosure = item.querySelector("enclosure");
       const audioUrl = enclosure ? enclosure.getAttribute("url") : null;
 
-      // Extract response + thought safely
       let response = "";
       let thought = "";
 
@@ -153,8 +158,8 @@ async function loadFeed() {
 
       const key =
         d.getFullYear() + "-" +
-        String(d.getMonth() + 1).padStart(2, "0") + "-" +
-        String(d.getDate()).padStart(2, "0");
+        String(d.getMonth()+1).padStart(2,"0") + "-" +
+        String(d.getDate()).padStart(2,"0");
 
       devotionalMap[key] = {
         title,
@@ -183,9 +188,9 @@ async function loadFeed() {
     });
 
   } catch (e) {
-    document.getElementById("content").innerHTML =
-      "<div class='card'>Failed to load devotional</div>";
     console.error(e);
+    document.getElementById("content").innerHTML =
+      "<div class='card'>Failed to load devotional feed</div>";
   }
 }
 
