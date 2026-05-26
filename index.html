@@ -11,7 +11,7 @@
 
   <style>
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       background: #f3f4f6;
       padding: 20px;
     }
@@ -31,18 +31,28 @@
       padding: 15px;
       border-radius: 12px;
       margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     }
 
-    #content .card {
+    #calendarPicker {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+    }
+
+    .card {
       background: white;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     }
 
     .date {
-      color: gray;
+      color: #6b7280;
       margin-bottom: 10px;
+      font-size: 14px;
     }
 
     audio {
@@ -57,6 +67,15 @@
       color: white;
       text-decoration: none;
       border-radius: 8px;
+    }
+
+    .section {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f9fafb;
+      border-left: 4px solid #1f2937;
+      border-radius: 10px;
+      white-space: pre-line;
     }
   </style>
 </head>
@@ -80,9 +99,8 @@
 
 <script>
 
-const FEED_URL =
-  "https://api.allorigins.win/raw?url=" +
-  encodeURIComponent("https://api.experience.odb.org/devotionals/podcast/?country=US");
+const FEED_URL = "https://api.allorigins.win/raw?url=" +
+encodeURIComponent("https://api.experience.odb.org/devotionals/podcast/?country=US");
 
 const devotionalMap = {};
 
@@ -91,43 +109,29 @@ async function loadFeed() {
   try {
 
     const res = await fetch(FEED_URL);
-    const text = await res.text();
+    const xmlText = await res.text();
 
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(text, "text/xml");
-
+    const xml = new DOMParser().parseFromString(xmlText, "text/xml");
     const items = xml.querySelectorAll("item");
 
     items.forEach(item => {
 
-      const title = item.querySelector("title")?.textContent;
-      const link = item.querySelector("link")?.textContent;
-      const desc = item.querySelector("description")?.textContent;
-      const pubDate = item.querySelector("pubDate")?.textContent;
+      const title = item.querySelector("title")?.textContent || "";
+      const link = item.querySelector("link")?.textContent || "";
+      const pubDate = item.querySelector("pubDate")?.textContent || "";
+      const desc = item.querySelector("description")?.textContent || "";
 
       const enclosure = item.querySelector("enclosure");
       const audioUrl = enclosure ? enclosure.getAttribute("url") : null;
 
-      const date = new Date(pubDate);
-      const key =
-        date.getFullYear() +
-        "-" +
-        String(date.getMonth() + 1).padStart(2, "0") +
-        "-" +
-        String(date.getDate()).padStart(2, "0");
+      const d = new Date(pubDate);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
-      devotionalMap[key] = {
-        title,
-        link,
-        description: desc,
-        pubDate,
-        audioUrl
-      };
+      devotionalMap[key] = { title, link, pubDate, desc, audioUrl };
 
     });
 
     const picker = document.getElementById("calendarPicker");
-
     const dates = Object.keys(devotionalMap).sort().reverse();
 
     picker.max = dates[0];
@@ -140,42 +144,71 @@ async function loadFeed() {
       renderDevotional(this.value);
     });
 
-  } catch (error) {
+  } catch (e) {
     document.getElementById("content").innerHTML =
       "<div class='card'>Failed to load devotional</div>";
-    console.error(error);
+    console.error(e);
   }
+}
+
+function extractScripture(text) {
+  const match = text.match(/([A-Z][a-z]+ \\d+:\\d+[-\\d:]*)/);
+  return match ? match[1] : "";
+}
+
+function extractReflect(text) {
+  const idx = text.toLowerCase().indexOf("reflect");
+  if (idx === -1) return "";
+  return text.substring(idx).replace(/<[^>]*>/g, "").trim();
+}
+
+function cleanText(text) {
+  return text
+    .replace(/<[^>]*>/g, "")
+    .replace(/&ldquo;|&rdquo;/g, '"')
+    .replace(/&rsquo;/g, "'");
 }
 
 function renderDevotional(dateKey) {
 
-  const devotional = devotionalMap[dateKey];
+  const d = devotionalMap[dateKey];
   const content = document.getElementById("content");
 
-  if (!devotional) {
-    content.innerHTML =
-      "<div class='card'>No devotional available</div>";
+  if (!d) {
+    content.innerHTML = "<div class='card'>No devotional found</div>";
     return;
   }
+
+  const scripture = extractScripture(d.desc);
+  const reflect = extractReflect(d.desc);
+  const clean = cleanText(d.desc);
 
   content.innerHTML = `
     <div class="card">
 
-      <h2>${devotional.title}</h2>
+      <h3>Today's Scripture & Insight</h3>
+      <h2>${scripture || d.title}</h2>
 
-      <div class="date">${devotional.pubDate}</div>
+      <div class="date">${d.pubDate}</div>
 
-      ${devotional.audioUrl ? `
+      ${d.audioUrl ? `
         <audio controls>
-          <source src="${devotional.audioUrl}" type="audio/mpeg">
+          <source src="${d.audioUrl}" type="audio/mpeg">
         </audio>
       ` : ""}
 
-      <div>${devotional.description}</div>
+      <div>${clean}</div>
+
+      ${reflect ? `
+        <div class="section">
+          <strong>Reflect & Pray</strong>
+          <div>${reflect}</div>
+        </div>
+      ` : ""}
 
       <br>
 
-      <a class="btn" href="${devotional.link}" target="_blank">
+      <a class="btn" href="${d.link}" target="_blank">
         Read Full Devotional
       </a>
 
@@ -185,8 +218,8 @@ function renderDevotional(dateKey) {
 
 loadFeed();
 
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
 }
 
 </script>
