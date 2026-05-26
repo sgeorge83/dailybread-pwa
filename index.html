@@ -51,6 +51,12 @@
 
     .date {
       color: #6b7280;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .author {
+      color: #6b7280;
       margin-bottom: 10px;
       font-size: 14px;
     }
@@ -67,6 +73,7 @@
       color: white;
       text-decoration: none;
       border-radius: 8px;
+      margin-top: 10px;
     }
 
     .section {
@@ -105,7 +112,6 @@ encodeURIComponent("https://api.experience.odb.org/devotionals/podcast/?country=
 const devotionalMap = {};
 
 async function loadFeed() {
-
   try {
 
     const res = await fetch(FEED_URL);
@@ -121,13 +127,45 @@ async function loadFeed() {
       const pubDate = item.querySelector("pubDate")?.textContent || "";
       const desc = item.querySelector("description")?.textContent || "";
 
+      const author =
+        item.querySelector("author")?.textContent ||
+        item.querySelector("dc\\:creator")?.textContent ||
+        "";
+
       const enclosure = item.querySelector("enclosure");
       const audioUrl = enclosure ? enclosure.getAttribute("url") : null;
 
-      const d = new Date(pubDate);
-      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      // Extract response + thought safely
+      let response = "";
+      let thought = "";
 
-      devotionalMap[key] = { title, link, pubDate, desc, audioUrl };
+      try {
+        const raw = item.textContent;
+
+        const r = raw.match(/"response"\s*:\s*"([\s\S]*?)"/);
+        const t = raw.match(/"thought"\s*:\s*"([\s\S]*?)"/);
+
+        if (r) response = r[1];
+        if (t) thought = t[1];
+      } catch (e) {}
+
+      const d = new Date(pubDate);
+
+      const key =
+        d.getFullYear() + "-" +
+        String(d.getMonth() + 1).padStart(2, "0") + "-" +
+        String(d.getDate()).padStart(2, "0");
+
+      devotionalMap[key] = {
+        title,
+        link,
+        pubDate,
+        desc,
+        audioUrl,
+        author,
+        response,
+        thought
+      };
 
     });
 
@@ -152,14 +190,8 @@ async function loadFeed() {
 }
 
 function extractScripture(text) {
-  const match = text.match(/([A-Z][a-z]+ \\d+:\\d+[-\\d:]*)/);
+  const match = text.match(/([A-Z][a-z]+ \d+:\d+[-\d:]*)/);
   return match ? match[1] : "";
-}
-
-function extractReflect(text) {
-  const idx = text.toLowerCase().indexOf("reflect");
-  if (idx === -1) return "";
-  return text.substring(idx).replace(/<[^>]*>/g, "").trim();
 }
 
 function cleanText(text) {
@@ -180,7 +212,6 @@ function renderDevotional(dateKey) {
   }
 
   const scripture = extractScripture(d.desc);
-  const reflect = extractReflect(d.desc);
   const clean = cleanText(d.desc);
 
   content.innerHTML = `
@@ -191,6 +222,8 @@ function renderDevotional(dateKey) {
 
       <div class="date">${d.pubDate}</div>
 
+      ${d.author ? `<div class="author">By ${d.author}</div>` : ""}
+
       ${d.audioUrl ? `
         <audio controls>
           <source src="${d.audioUrl}" type="audio/mpeg">
@@ -199,14 +232,19 @@ function renderDevotional(dateKey) {
 
       <div>${clean}</div>
 
-      ${reflect ? `
+      ${d.response || d.thought ? `
         <div class="section">
-          <strong>Reflect & Pray</strong>
-          <div>${reflect}</div>
+
+          <strong>Reflect</strong>
+          <div>${cleanText(d.response || "")}</div>
+
+          <br>
+
+          <strong>Pray</strong>
+          <div>${cleanText(d.thought || "")}</div>
+
         </div>
       ` : ""}
-
-      <br>
 
       <a class="btn" href="${d.link}" target="_blank">
         Read Full Devotional
