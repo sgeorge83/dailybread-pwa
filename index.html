@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+    picker.addEventListener('change', function() {
+      renderDevotional(this.value);
+    });
+
+  } catch(error) {
+
+    document.getElementById('content').innerHTML = `
+      <div class="card">
+        Failed to load devotional feed.
+      </div>
+    `;
+
+    console.error(error);
+  }
+}
+
+function renderDevotional(dateKey) {
+
+  const devotional = devotionalMap[dateKey];
+
+  const content = document.getElementById('content');
+
+  if (!devotional) {
+
+    content.innerHTML = `
+      <div class="card empty">
+        No devotional available for selected date.
+      </div>
+    `;
+
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="card">
+
+      <h2>${devotional.title}</h2>
+
+      <div class="date">
+        ${devotional.pubDate}
+      </div>
+
+      ${devotional.audioUrl ? `
+        <audio controls>
+          <source src="${devotional.audioUrl}" type="audio/mpeg">
+        </audio>
+      ` : ''}
+
+      <div class="summary">
+        ${devotional.description}
+      </div>
+
+      <a class="btn" href="${devotional.link}" target="_blank">
+        Read Full Devotional
+      </a>
+
+    </div>
+  `;
+}
+
+loadFeed();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+
+</script>
+
+</body>
+</html>
