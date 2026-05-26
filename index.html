@@ -101,7 +101,7 @@
 <script>
 
 const FEED_URL =
-  "https://api.codetabs.com/v1/proxy?quest=" +
+  "https://api.allorigins.win/raw?url=" +
   encodeURIComponent(
     "https://api.experience.odb.org/devotionals/podcast/?country=US"
   );
@@ -132,11 +132,10 @@ async function loadFeed() {
       const enclosure = item.querySelector("enclosure");
       const audioUrl = enclosure ? enclosure.getAttribute("url") : null;
 
-      // FIXED: stable date key (IMPORTANT)
+      // ✅ FIXED DATE (IMPORTANT)
       const d = new Date(pubDate);
       const key = d.toISOString().split("T")[0];
 
-      // extract response + thought
       let response = "";
       let thought = "";
 
@@ -158,6 +157,7 @@ async function loadFeed() {
         response,
         thought
       };
+
     });
 
     const picker = document.getElementById("calendarPicker");
@@ -165,7 +165,7 @@ async function loadFeed() {
 
     if (!dates.length) {
       document.getElementById("content").innerHTML =
-        "<div class='card'>No data found from API</div>";
+        "<div class='card'>No devotional data found</div>";
       return;
     }
 
@@ -233,12 +233,12 @@ function renderDevotional(dateKey) {
         <div class="section">
 
           <strong>Reflect</strong>
-          <div>${cleanText(d.response)}</div>
+          <div>${cleanText(d.response || "")}</div>
 
           <br>
 
           <strong>Pray</strong>
-          <div>${cleanText(d.thought)}</div>
+          <div>${cleanText(d.thought || "")}</div>
 
         </div>
       ` : ""}
