@@ -2,32 +2,49 @@
 
 **Live app:** https://sgeorge83.github.io/dailybread-pwa/
 
+> *Your daily devotional from Our Daily Bread — in English and Urdu.*
+
 ---
 
 ## About Daily Bread
 
-**Daily Bread** (Urdu: **Roz Ki Roti / روز کی روٹی**) is a free installable web app that brings [Our Daily Bread](https://odb.org) devotionals to your phone, tablet, or desktop — no app store required.
+Daily Bread (Urdu: Roz Ki Roti / روز کی روٹی) is a free installable web app for Our Daily Bread devotionals on your phone, tablet, or desktop — no app store needed.
 
-Read today's devotion, insights, reflection, and prayer. Listen to daily audio. Switch to Urdu for auto-translated devotional text and Urdu Scripture from the **Urdu Geo Version** via the [Urdu Bible API](https://urdu-bible-api.vercel.app).
+Read today's devotion, insights, reflection, and prayer. Listen to daily audio. Switch to Urdu for auto-translated devotional text and Urdu Scripture from the Urdu Geo Version.
 
-The calendar updates automatically from the official ODB Experience API. Install it on Windows, Android, or iPhone/iPad and open it like a native app from your home screen.
-
-### Highlights
-
-- Live calendar from the official ODB API (~3-week rolling window)
-- English & Urdu · audio · dark/light theme
-- Tabs: Devotion · Insights · Reflect · Scripture
-- Installable PWA — Windows, Android, iPhone/iPad
-- Responsive layout — desktop website view + compact mobile app view
+- Live calendar from the official ODB API
+- English & Urdu · audio · dark mode
+- Install on Windows, Android, or iPhone/iPad
 - Internet required for daily content
 
 ### Content sources
 
-| Content | Source |
-|---------|--------|
-| Devotional text, images & audio | [Our Daily Bread Ministries](https://odb.org) |
-| Urdu Scripture | Urdu Geo Version · [Urdu Bible API](https://urdu-bible-api.vercel.app) |
-| Urdu devotional text | Auto-translated when Urdu is selected (not official ODB Urdu) |
+- Devotional text, images & audio — [Our Daily Bread (ODB.org)](https://odb.org)
+- Urdu Scripture — Urdu Geo Version · [Urdu Bible API](https://urdu-bible-api.vercel.app)
+- Urdu devotional — auto-translated when Urdu is selected (not official ODB Urdu)
+
+---
+
+## روز کی روٹی — تعارف
+
+> *Our Daily Bread کا روزانہ مذہبی مضمون — انگریزی اور اردو میں۔*
+
+روز کی روٹی (Daily Bread) ایک مفت انسٹال ایبل ویب ایپ ہے جو Our Daily Bread کے مضامین آپ کے فون، ٹیبلٹ یا کمپیوٹر پر لاتی ہے — ایپ اسٹور کی ضرورت نہیں۔
+
+آج کا مضمون، بصیرت، غور و فکر اور دعا پڑھیں۔ روزانہ آڈیو سنیں۔ اردو میں خودکار ترجمہ شدہ مضمون اور Urdu Geo Version میں کتابِ مقدس کے لیے زبان تبدیل کریں۔
+
+- ODB API سے براہِ راست لائیو کیلنڈر
+- انگریزی و اردو · آڈیو · ڈارک موڈ
+- Windows، Android یا iPhone/iPad پر انسٹال کریں
+- روزانہ مضامین کے لیے انٹرنیٹ ضروری ہے
+
+### مواد کے ماخذ
+
+- مضمون، تصاویر و آڈیو — [Our Daily Bread (ODB.org)](https://odb.org)
+- اردو کتابِ مقدس — Urdu Geo Version · [Urdu Bible API](https://urdu-bible-api.vercel.app)
+- اردو مضمون — خودکار ترجمہ (ODB کا باضابطہ اردو ترجمہ نہیں)
+
+---
 
 **Developed by** [sgeorge83](https://github.com/sgeorge83) & **E-Geek Creations**
 
@@ -37,9 +54,9 @@ The calendar updates automatically from the official ODB Experience API. Install
 
 | Device | How to install |
 |--------|----------------|
-| **Windows** | Open in Chrome or Edge → click **About** or **↓ Install** in the header |
-| **Android** | Chrome → **Install** banner or menu → *Add to Home screen* |
-| **iPhone / iPad** | Safari only → tap **↓ Install** → follow *Share → Add to Home Screen* |
+| **Windows** | Chrome or Edge → **About** or **↓ Install** in the header |
+| **Android** | Chrome → **Install** / *Add to Home screen* |
+| **iPhone / iPad** | Safari → **↓ Install** → *Share → Add to Home Screen* |
 
 ## Languages
 
@@ -85,8 +102,8 @@ Open [http://localhost:8080](http://localhost:8080)
 ## Deploy on GitHub Pages
 
 1. Push this repo to `github.com/sgeorge83/dailybread-pwa`
-2. In GitHub: **Settings → Pages → Build and deployment → GitHub Actions**
-3. The included workflow (`.github/workflows/pages.yml`) publishes on push to `main`
+2. GitHub → **Settings → Pages → Build and deployment → GitHub Actions**
+3. The workflow in `.github/workflows/pages.yml` publishes on push to `main`
 
 ## APIs used
 
@@ -102,6 +119,6 @@ Open [http://localhost:8080](http://localhost:8080)
 
 ## Releases
 
-Create a release at: https://github.com/sgeorge83/dailybread-pwa/releases/new
+Create a release: https://github.com/sgeorge83/dailybread-pwa/releases/new
 
-Release notes template: see [`docs/RELEASE-v1.0.0.md`](docs/RELEASE-v1.0.0.md)
+Release notes template: [`docs/RELEASE-v1.0.0.md`](docs/RELEASE-v1.0.0.md)
