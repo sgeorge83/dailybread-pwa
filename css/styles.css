@@ -71,9 +71,28 @@ a {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
   background: var(--accent);
   color: #fff;
+}
+
+.install-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.install-text strong {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.install-help {
+  font-size: 0.78rem;
+  opacity: 0.88;
+  line-height: 1.4;
 }
 
 .install-banner button {
@@ -516,6 +535,27 @@ audio {
   font-size: 0.82rem;
   text-align: center;
   line-height: 1.8;
+}
+
+.developer-credit {
+  margin-top: 0.65rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+
+.developer-credit a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.developer-credit a:hover {
+  text-decoration: underline;
+}
+
+.developer-credit strong {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 @media (max-width: 600px) {

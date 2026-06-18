@@ -1,14 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Daily Bread">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Roz Ki Roti — Daily Bread">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1e3a5f"/>
-      <stop offset="100%" stop-color="#2f5d94"/>
-    </linearGradient>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#c4882a"/>
+      <stop offset="100%" stop-color="#7a5218"/>
+    </radialGradient>
+    <radialGradient id="bread" cx="45%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#f7e4b8"/>
+      <stop offset="55%" stop-color="#e8c878"/>
+      <stop offset="100%" stop-color="#c89442"/>
+    </radialGradient>
+    <radialGradient id="spot" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8b5a1e" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#6b4010" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <ellipse cx="256" cy="300" rx="170" ry="58" fill="#f4d7a6"/>
-  <path d="M120 300c40-72 88-108 136-108s96 36 136 108" fill="#e8b86d"/>
-  <path d="M150 300c28-42 66-64 106-64s78 22 106 64" fill="#f7e6bf"/>
-  <circle cx="256" cy="170" r="44" fill="#ffd166"/>
-  <path d="M256 126c18 0 34 10 42 26" stroke="#fff3bf" stroke-width="10" stroke-linecap="round" fill="none"/>
+
+  <!-- warm tandoor background -->
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+
+  <!-- subtle steam -->
+  <path d="M200 118c8-22 8-38 0-56M256 102c6-18 6-32 0-48M312 118c8-22 8-38 0-56"
+        stroke="#fff8e8" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.35"/>
+
+  <!-- naan / roti — oval flatbread -->
+  <ellipse cx="256" cy="278" rx="178" ry="148" fill="url(#bread)" stroke="#a87228" stroke-width="4"/>
+
+  <!-- char bubbles (tandoor marks) -->
+  <ellipse cx="170" cy="250" rx="28" ry="22" fill="url(#spot)"/>
+  <ellipse cx="230" cy="220" rx="22" ry="18" fill="url(#spot)"/>
+  <ellipse cx="310" cy="235" rx="26" ry="20" fill="url(#spot)"/>
+  <ellipse cx="350" cy="290" rx="20" ry="16" fill="url(#spot)"/>
+  <ellipse cx="200" cy="310" rx="24" ry="19" fill="url(#spot)"/>
+  <ellipse cx="280" cy="330" rx="30" ry="22" fill="url(#spot)"/>
+  <ellipse cx="340" cy="250" rx="18" ry="14" fill="url(#spot)"/>
+  <ellipse cx="150" cy="285" rx="16" ry="13" fill="url(#spot)"/>
+
+  <!-- sesame seeds -->
+  <ellipse cx="210" cy="265" rx="5" ry="3" fill="#f5edd8" opacity="0.9" transform="rotate(-20 210 265)"/>
+  <ellipse cx="265" cy="255" rx="5" ry="3" fill="#f5edd8" opacity="0.85" transform="rotate(15 265 255)"/>
+  <ellipse cx="320" cy="275" rx="5" ry="3" fill="#f5edd8" opacity="0.9" transform="rotate(-8 320 275)"/>
+  <ellipse cx="290" cy="305" rx="5" ry="3" fill="#f5edd8" opacity="0.8" transform="rotate(25 290 305)"/>
+  <ellipse cx="240" cy="295" rx="5" ry="3" fill="#f5edd8" opacity="0.85" transform="rotate(-12 240 295)"/>
+
+  <!-- highlight edge -->
+  <ellipse cx="256" cy="278" rx="178" ry="148" fill="none" stroke="#fff8e8" stroke-width="3" opacity="0.18"/>
 </svg>

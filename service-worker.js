@@ -1,4 +1,4 @@
-const CACHE_NAME = "dailybread-pwa-v3";
+const CACHE_NAME = "dailybread-pwa-v4";
 
 const APP_SHELL = [
   "./",
@@ -12,6 +12,7 @@ const APP_SHELL = [
   "./js/urdu-bible.js",
   "./js/app.js",
   "./js/translate.js",
+  "./js/urdu-glossary.js",
   "./icons/icon.svg",
   "./service-worker.js",
 ];

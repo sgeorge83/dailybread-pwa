@@ -1,5 +1,14 @@
-const CACHE_PREFIX = "dailybread-tr-v1:";
-const CHUNK_SIZE = 400;
+import {
+  applyPostCorrections,
+  batchText,
+  lockGlossaryTerms,
+  protectReferences,
+  restoreGlossaryTerms,
+  restoreReferences,
+} from "./urdu-glossary.js";
+
+const CACHE_PREFIX = "dailybread-tr-v2:";
+const CONTEXT_HINT = "Translate this Christian devotional text into natural, respectful Urdu as used in Urdu Bible translations. ";
 
 function hashText(text) {
   let hash = 0;
@@ -22,63 +31,59 @@ function setCached(key, value) {
   try {
     localStorage.setItem(key, value);
   } catch {
-    /* storage full — skip cache */
+    /* storage full */
   }
-}
-
-function chunkText(text, maxLen) {
-  if (text.length <= maxLen) return [text];
-
-  const chunks = [];
-  const paragraphs = text.split(/\n{2,}/);
-  let current = "";
-
-  for (const para of paragraphs) {
-    if ((current + para).length <= maxLen) {
-      current = current ? `${current}\n\n${para}` : para;
-    } else {
-      if (current) chunks.push(current);
-      if (para.length <= maxLen) {
-        current = para;
-      } else {
-        for (let i = 0; i < para.length; i += maxLen) {
-          chunks.push(para.slice(i, i + maxLen));
-        }
-        current = "";
-      }
-    }
-  }
-
-  if (current) chunks.push(current);
-  return chunks.length ? chunks : [text];
 }
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function translateChunk(text, targetLang) {
+async function translateViaGoogle(text, targetLang, withContext) {
   const langCode = targetLang === "ur" ? "ur" : targetLang;
+  const payload = withContext ? CONTEXT_HINT + text : text;
 
-  const gtxUrl =
+  const url =
     "https://translate.googleapis.com/translate_a/single" +
-    `?client=gtx&sl=en&tl=${langCode}&dt=t&q=${encodeURIComponent(text)}`;
+    `?client=gtx&sl=en&tl=${langCode}&dt=t&dt=bd&ie=UTF-8&oe=UTF-8` +
+    `&q=${encodeURIComponent(payload)}`;
 
-  try {
-    const response = await fetch(gtxUrl);
-    if (!response.ok) throw new Error("gtx failed");
-    const data = await response.json();
-    return data[0].map((part) => part[0]).join("");
-  } catch {
-    const myMemoryUrl =
-      "https://api.mymemory.translated.net/get" +
-      `?q=${encodeURIComponent(text)}&langpair=en|${langCode}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Google translate failed");
 
-    const response = await fetch(myMemoryUrl);
-    if (!response.ok) throw new Error("translation failed");
-    const data = await response.json();
-    return data.responseData?.translatedText || text;
+  const data = await response.json();
+  let translated = data[0].map((part) => part[0]).join("");
+
+  if (withContext && translated.startsWith(CONTEXT_HINT.slice(0, 20))) {
+    translated = translated.replace(/^[^.]*\.\s*/, "");
   }
+
+  return translated.trim();
+}
+
+async function translateViaMyMemory(text, targetLang) {
+  const langCode = targetLang === "ur" ? "ur" : targetLang;
+  const url =
+    "https://api.mymemory.translated.net/get" +
+    `?q=${encodeURIComponent(text)}&langpair=en|${langCode}`;
+
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("MyMemory failed");
+
+  const data = await response.json();
+  return data.responseData?.translatedText?.trim() || text;
+}
+
+async function translateChunk(text, targetLang, withContext = false) {
+  try {
+    return await translateViaGoogle(text, targetLang, withContext);
+  } catch {
+    return translateViaMyMemory(text, targetLang);
+  }
+}
+
+function polishUrdu(text) {
+  return applyPostCorrections(text);
 }
 
 export async function translateText(text, targetLang) {
@@ -88,15 +93,22 @@ export async function translateText(text, targetLang) {
   const cached = getCached(cacheKey);
   if (cached) return cached;
 
-  const chunks = chunkText(text.trim(), CHUNK_SIZE);
+  const { text: refSafe, refs } = protectReferences(text.trim());
+  const { text: glossarySafe, locked } = lockGlossaryTerms(refSafe);
+  const batches = batchText(glossarySafe, 320);
   const parts = [];
 
-  for (const chunk of chunks) {
-    parts.push(await translateChunk(chunk, targetLang));
-    if (chunks.length > 1) await delay(120);
+  for (let i = 0; i < batches.length; i += 1) {
+    const useContext = i === 0;
+    let translated = await translateChunk(batches[i], targetLang, useContext);
+    translated = restoreGlossaryTerms(translated, locked);
+    translated = restoreReferences(translated, refs);
+    translated = polishUrdu(translated);
+    parts.push(translated);
+    if (batches.length > 1) await delay(150);
   }
 
-  const result = parts.join("\n\n");
+  const result = parts.join(" ");
   setCached(cacheKey, result);
   return result;
 }
@@ -104,36 +116,31 @@ export async function translateText(text, targetLang) {
 export async function translateDevotional(devotional, targetLang) {
   if (targetLang === "en") return { ...devotional, _translated: false };
 
-  const [
-    title,
-    verse,
-    content,
-    insights,
-    response,
-    thought,
-    bibleInYear,
-    ...categoryResults
-  ] = await Promise.all([
-    translateText(devotional.title, targetLang),
-    translateText(devotional.verse, targetLang),
-    translateText(devotional.content, targetLang),
-    translateText(devotional.insights, targetLang),
-    translateText(devotional.response, targetLang),
-    translateText(devotional.thought, targetLang),
-    translateText(devotional.bibleInYear, targetLang),
-    ...devotional.categories.map((item) => translateText(item, targetLang)),
-  ]);
+  const values = [
+    devotional.title,
+    devotional.verse,
+    devotional.content,
+    devotional.insights,
+    devotional.response,
+    devotional.thought,
+    devotional.bibleInYear,
+    ...devotional.categories,
+  ];
+
+  const translated = await Promise.all(
+    values.map((value) => translateText(value, targetLang))
+  );
 
   return {
     ...devotional,
-    title,
-    verse,
-    content,
-    insights,
-    response,
-    thought,
-    bibleInYear,
-    categories: categoryResults.filter(Boolean),
+    title: translated[0],
+    verse: translated[1],
+    content: translated[2],
+    insights: translated[3],
+    response: translated[4],
+    thought: translated[5],
+    bibleInYear: translated[6],
+    categories: translated.slice(7).filter(Boolean),
     _translated: true,
   };
 }
