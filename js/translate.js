@@ -7,8 +7,40 @@ import {
   restoreReferences,
 } from "./urdu-glossary.js";
 
-const CACHE_PREFIX = "dailybread-tr-v2:";
-const CONTEXT_HINT = "Translate this Christian devotional text into natural, respectful Urdu as used in Urdu Bible translations. ";
+const CACHE_PREFIX = "dailybread-tr-v3:";
+const LEGACY_CACHE_PREFIXES = ["dailybread-tr-v2:", "dailybread-tr-v1:"];
+
+function purgeLegacyTranslationCache() {
+  try {
+    const remove = [];
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (key && LEGACY_CACHE_PREFIXES.some((prefix) => key.startsWith(prefix))) {
+        remove.push(key);
+      }
+    }
+    remove.forEach((key) => localStorage.removeItem(key));
+  } catch {
+    /* ignore */
+  }
+}
+
+purgeLegacyTranslationCache();
+
+/** Machine translation sometimes echoes the old context prompt — strip it. */
+const PROMPT_LEAK_PATTERNS = [
+  /^اس\s+مسیحی\s+[^۔]*۔\s*/u,
+  /^Translate\s+this\s+Christian[^.]*\.\s*/i,
+  /^ترجمہ\s+کریں[^۔]*۔\s*/u,
+];
+
+function stripPromptLeak(text) {
+  let result = text.trim();
+  for (const pattern of PROMPT_LEAK_PATTERNS) {
+    result = result.replace(pattern, "");
+  }
+  return result.trim();
+}
 
 function hashText(text) {
   let hash = 0;
@@ -39,26 +71,19 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function translateViaGoogle(text, targetLang, withContext) {
+async function translateViaGoogle(text, targetLang) {
   const langCode = targetLang === "ur" ? "ur" : targetLang;
-  const payload = withContext ? CONTEXT_HINT + text : text;
 
   const url =
     "https://translate.googleapis.com/translate_a/single" +
     `?client=gtx&sl=en&tl=${langCode}&dt=t&dt=bd&ie=UTF-8&oe=UTF-8` +
-    `&q=${encodeURIComponent(payload)}`;
+    `&q=${encodeURIComponent(text)}`;
 
   const response = await fetch(url);
   if (!response.ok) throw new Error("Google translate failed");
 
   const data = await response.json();
-  let translated = data[0].map((part) => part[0]).join("");
-
-  if (withContext && translated.startsWith(CONTEXT_HINT.slice(0, 20))) {
-    translated = translated.replace(/^[^.]*\.\s*/, "");
-  }
-
-  return translated.trim();
+  return data[0].map((part) => part[0]).join("").trim();
 }
 
 async function translateViaMyMemory(text, targetLang) {
@@ -74,16 +99,16 @@ async function translateViaMyMemory(text, targetLang) {
   return data.responseData?.translatedText?.trim() || text;
 }
 
-async function translateChunk(text, targetLang, withContext = false) {
+async function translateChunk(text, targetLang) {
   try {
-    return await translateViaGoogle(text, targetLang, withContext);
+    return await translateViaGoogle(text, targetLang);
   } catch {
     return translateViaMyMemory(text, targetLang);
   }
 }
 
 function polishUrdu(text) {
-  return applyPostCorrections(text);
+  return applyPostCorrections(stripPromptLeak(text));
 }
 
 export async function translateText(text, targetLang) {
@@ -99,8 +124,7 @@ export async function translateText(text, targetLang) {
   const parts = [];
 
   for (let i = 0; i < batches.length; i += 1) {
-    const useContext = i === 0;
-    let translated = await translateChunk(batches[i], targetLang, useContext);
+    let translated = await translateChunk(batches[i], targetLang);
     translated = restoreGlossaryTerms(translated, locked);
     translated = restoreReferences(translated, refs);
     translated = polishUrdu(translated);

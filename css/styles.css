@@ -58,6 +58,7 @@ body {
 
 body[dir="rtl"] {
   font-family: var(--font-urdu);
+  line-height: 2;
 }
 
 a {
@@ -176,6 +177,11 @@ body.layout-desktop .card {
 
 body.layout-desktop .compact-head {
   padding: 1.25rem 1.35rem;
+}
+
+body.layout-desktop .head-audio audio {
+  height: 2.35rem;
+  max-width: 28rem;
 }
 
 body.layout-desktop .thumb-image {
@@ -587,10 +593,69 @@ body.layout-mobile .main {
   font-weight: 700;
 }
 
+body[dir="rtl"] .devotional h2 {
+  line-height: 2.15;
+  margin-bottom: 0.15rem;
+}
+
+body[dir="rtl"] .head-text {
+  line-height: 2.1;
+}
+
+body[dir="rtl"] .author-line {
+  line-height: 1.9;
+  margin-top: 0.5rem;
+}
+
+body[dir="rtl"] .content-tab {
+  line-height: 1.6;
+  padding-block: 0.55rem;
+}
+
+body[dir="rtl"] .content-panel h4 {
+  line-height: 1.9;
+  margin-bottom: 0.65rem;
+}
+
 .author-line {
   margin: 0.35rem 0 0;
   font-size: 0.82rem;
   color: var(--text-muted);
+}
+
+.head-audio {
+  margin-top: 0.45rem;
+}
+
+.head-audio audio {
+  width: 100%;
+  height: 2rem;
+  margin: 0;
+}
+
+.translate-notice {
+  padding: 0.55rem 1rem 0;
+}
+
+.translate-notice .notice {
+  margin: 0;
+}
+
+.card-footer {
+  padding: 0.85rem 1rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface-muted);
+}
+
+.bible-in-year {
+  margin: 0 0 0.75rem;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.card-footer .actions {
+  margin-top: 0;
 }
 
 .content-tabs {
@@ -664,6 +729,11 @@ body.layout-mobile .main {
   line-height: 1.55;
 }
 
+body[dir="rtl"] .key-verse {
+  line-height: 2.3;
+  padding: 0.95rem 1rem;
+}
+
 .passage-ref {
   margin: 0 0 0.75rem;
   font-weight: 600;
@@ -674,6 +744,21 @@ body.layout-mobile .main {
 body[dir="rtl"] .content-panel {
   font-family: var(--font-urdu);
   font-size: 1.08rem;
+  line-height: 2.25;
+}
+
+body[dir="rtl"] .content-panel p {
+  line-height: 2.25;
+  margin-bottom: 1.35rem;
+}
+
+body[dir="rtl"] .verse-item {
+  line-height: 2.3;
+  margin-bottom: 1rem;
+}
+
+body[dir="rtl"] .notice,
+body[dir="rtl"] .bible-in-year {
   line-height: 2;
 }
 
