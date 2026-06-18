@@ -1,13 +1,13 @@
 {
-  "name": "Daily Bread",
-  "short_name": "Daily Bread",
-  "description": "Our Daily Bread devotionals with multilingual scripture",
+  "name": "Daily Bread — Roz Ki Roti",
+  "short_name": "Roz Ki Roti",
+  "description": "Our Daily Bread devotionals with Urdu scripture and auto-translation",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#f4f6f9",
-  "theme_color": "#1e3a5f",
+  "background_color": "#faf6ef",
+  "theme_color": "#8b6914",
   "categories": ["books", "lifestyle", "education"],
   "icons": [
     {

@@ -3,12 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="Daily Bread — Our Daily Bread devotionals with multilingual scripture">
-  <meta name="theme-color" content="#1e3a5f">
+  <meta name="description" content="Daily Bread (Roz Ki Roti) — Our Daily Bread devotionals with Urdu scripture">
+  <meta name="theme-color" content="#8b6914">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Daily Bread">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Noto+Nastaliq+Urdu:wght@400;600&display=swap" rel="stylesheet">
 
   <title>Daily Bread</title>
   <link rel="manifest" href="manifest.json">
@@ -26,7 +30,7 @@
   <header class="app-header">
     <div class="header-top">
       <div class="brand">
-        <img src="icons/icon.svg" alt="" width="36" height="36" class="brand-icon">
+        <img src="icons/icon.svg" alt="" width="44" height="44" class="brand-icon">
         <div>
           <h1 data-i18n="appTitle">Daily Bread</h1>
           <p class="subtitle" data-i18n="appSubtitle">Our Daily Bread Devotional</p>
@@ -43,22 +47,27 @@
         <label for="lang-select" data-i18n="language">Language</label>
         <select id="lang-select" aria-label="Language">
           <option value="en">English</option>
-          <option value="ur">&#1575;&#1585;&#1583;&#1608; (Urdu)</option>
-          <option value="hi">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368; (Hindi)</option>
+          <option value="ur">&#1575;&#1585;&#1583;&#1608; — Roz Ki Roti</option>
         </select>
       </div>
-      <div class="control-group">
-        <label for="date-picker" data-i18n="selectDate">Select date</label>
-        <input type="date" id="date-picker">
+      <div class="control-group range-info">
+        <span class="range-label" data-i18n="availableRange">Available devotionals</span>
+        <span id="date-range" class="range-value">—</span>
       </div>
-      <button id="today-btn" type="button" class="secondary-btn" data-i18n="today">Today</button>
     </div>
+
+    <div class="date-nav" aria-label="Date navigation">
+      <button id="prev-day" type="button" class="nav-arrow" aria-label="Previous day">&#8249;</button>
+      <div id="date-strip" class="date-strip" role="tablist"></div>
+      <button id="next-day" type="button" class="nav-arrow" aria-label="Next day">&#8250;</button>
+    </div>
+    <button id="today-btn" type="button" class="today-btn" data-i18n="today">Today</button>
   </header>
 
   <main id="main" class="main">
     <div id="status" class="status" role="status">
       <div class="spinner" aria-hidden="true"></div>
-      <span data-i18n="loading">Loading today&apos;s devotional...</span>
+      <span data-i18n="loading">Loading devotional...</span>
     </div>
     <article id="devotional" class="devotional hidden" aria-live="polite"></article>
   </main>

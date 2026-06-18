@@ -1,4 +1,4 @@
-const CACHE_NAME = "dailybread-pwa-v2";
+const CACHE_NAME = "dailybread-pwa-v3";
 
 const APP_SHELL = [
   "./",
@@ -11,6 +11,7 @@ const APP_SHELL = [
   "./js/odb-api.js",
   "./js/urdu-bible.js",
   "./js/app.js",
+  "./js/translate.js",
   "./icons/icon.svg",
   "./service-worker.js",
 ];
@@ -43,7 +44,9 @@ self.addEventListener("fetch", (event) => {
   if (
     url.origin.includes("api.experience.odb.org") ||
     url.origin.includes("urdu-bible-api.vercel.app") ||
-    url.origin.includes("cloudfront.net")
+    url.origin.includes("cloudfront.net") ||
+    url.origin.includes("translate.googleapis.com") ||
+    url.origin.includes("mymemory.translated.net")
   ) {
     event.respondWith(
       fetch(request)

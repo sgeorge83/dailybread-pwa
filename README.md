@@ -6,28 +6,22 @@ A multilingual Progressive Web App for [Our Daily Bread](https://odb.org) devoti
 
 ## Features
 
-- Daily devotionals from `https://api.experience.odb.org/devotionals/`
-- Date picker to browse past and upcoming devotionals
-- **English** — full ODB devotional (title, devotion, key verse, insights, reflect, pray, Bible in a year)
-- **Urdu (اردو)** — RTL UI + Urdu scripture passage from Urdu Bible API
-- **Hindi (हिन्दी)** — localized UI (devotional text from ODB is English until Hindi API support is available)
-- Audio playback when ODB provides an MP3
-- Hero image, categories, and links to ODB.org
-- Dark / light theme
-- Installable PWA with offline caching
-- Web Share support on supported devices
+- Daily devotionals from `https://api.experience.odb.org/devotionals/` (currently ~3 weeks per API window)
+- **Scrollable day picker** — only dates the API actually provides (no empty calendar days)
+- **English** — full ODB devotional
+- **Urdu (Roz Ki Roti / روز کی روٹی)** — auto-translated devotion, insights, reflect & pray + Urdu scripture from Urdu Bible API
+- Audio, hero image, dark/light theme, offline PWA, install & share
 
 ## Languages
 
-| Language | Devotional text | Scripture passage |
-|----------|-----------------|---------------------|
-| English  | ODB API         | English reference   |
-| Urdu     | ODB API (English)* | Urdu Geo Version via Urdu Bible API |
-| Hindi    | ODB API (English)* | Urdu passage shown when available |
+| Language | Devotional text | Scripture |
+|----------|-----------------|-----------|
+| English  | ODB API (official) | English reference |
+| Urdu     | Auto-translated via Google/MyMemory | Urdu Geo Version via Urdu Bible API |
 
-\*The public ODB Experience API currently returns English devotionals only. Urdu/Hindi devotional *text* can be added when ODB exposes those languages via API, or through a future translation pipeline.
+The ODB Experience API currently returns **~21 days** of English devotionals at a time (e.g. Jun 8–28). The date strip is built only from those available dates.
 
-**Suggested future languages:** Spanish (`es`), Arabic (`ar`), Tamil (`ta`), Malayalam (`ml`) — ODB publishes in 40+ languages; the app structure is ready to extend.
+Auto-translation runs when you switch to Urdu. Results are cached locally so repeat visits are faster. A small note appears when content is auto-translated.
 
 ## Project structure
 
@@ -42,6 +36,7 @@ dailybread-pwa/
 │   ├── config.js       # API URLs
 │   ├── i18n.js         # UI strings (en / ur / hi)
 │   ├── odb-api.js      # ODB JSON API client
+│   ├── translate.js    # Auto-translate to Urdu (cached)
 │   ├── bible-ref.js    # Scripture reference parser
 │   └── urdu-bible.js   # Urdu passage fetcher
 └── icons/icon.svg

@@ -1,4 +1,4 @@
-import { CACHE_KEY, STORAGE_LANG, STORAGE_THEME } from "./config.js";
+import { STORAGE_LANG, STORAGE_THEME } from "./config.js";
 import { applyUiStrings, t } from "./i18n.js";
 import {
   cacheDevotionals,
@@ -6,6 +6,7 @@ import {
   getCachedDevotionals,
 } from "./odb-api.js";
 import { fetchUrduPassage } from "./urdu-bible.js";
+import { translateDevotional } from "./translate.js";
 
 const state = {
   lang: localStorage.getItem(STORAGE_LANG) || "en",
@@ -18,9 +19,12 @@ const state = {
 const els = {
   status: document.getElementById("status"),
   devotional: document.getElementById("devotional"),
-  datePicker: document.getElementById("date-picker"),
+  dateStrip: document.getElementById("date-strip"),
+  dateRange: document.getElementById("date-range"),
   langSelect: document.getElementById("lang-select"),
   todayBtn: document.getElementById("today-btn"),
+  prevDay: document.getElementById("prev-day"),
+  nextDay: document.getElementById("next-day"),
   themeToggle: document.getElementById("theme-toggle"),
   shareBtn: document.getElementById("share-btn"),
   installBanner: document.getElementById("install-banner"),
@@ -37,13 +41,48 @@ function escapeHtml(value) {
 }
 
 function formatDisplayDate(dateKey, lang) {
-  const locale = lang === "ur" ? "ur-PK" : lang === "hi" ? "hi-IN" : "en-US";
+  const locale = lang === "ur" ? "ur-PK" : "en-US";
   return new Date(`${dateKey}T12:00:00`).toLocaleDateString(locale, {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
   });
+}
+
+function formatRangeLabel(dates, lang) {
+  if (!dates.length) return "—";
+  const locale = lang === "ur" ? "ur-PK" : "en-US";
+  const fmt = (key) =>
+    new Date(`${key}T12:00:00`).toLocaleDateString(locale, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  return `${dates.length} days · ${fmt(dates[0])} – ${fmt(dates.at(-1))}`;
+}
+
+function sortedDates() {
+  return [...state.devotionals.keys()].sort();
+}
+
+function pickDefaultDate(dates) {
+  const today = new Date().toISOString().slice(0, 10);
+  if (dates.includes(today)) return today;
+
+  const todayMs = new Date(`${today}T12:00:00`).getTime();
+  let closest = dates[0];
+  let minDiff = Infinity;
+
+  for (const key of dates) {
+    const diff = Math.abs(new Date(`${key}T12:00:00`).getTime() - todayMs);
+    if (diff < minDiff) {
+      minDiff = diff;
+      closest = key;
+    }
+  }
+
+  return closest;
 }
 
 function setTheme(theme) {
@@ -65,7 +104,7 @@ function showStatus(messageKey, isError = false) {
     <div class="spinner" aria-hidden="true"></div>
     <span>${escapeHtml(t(state.lang, messageKey))}</span>
   `;
-  if (isError) els.status.style.borderColor = "tomato";
+  els.status.style.borderColor = isError ? "#c0392b" : "";
 }
 
 function hideStatus() {
@@ -73,22 +112,61 @@ function hideStatus() {
   els.devotional.classList.remove("hidden");
 }
 
-function sortedDates() {
-  return [...state.devotionals.keys()].sort();
+function updateNavButtons() {
+  const dates = sortedDates();
+  const idx = dates.indexOf(state.selectedDate);
+  els.prevDay.disabled = idx <= 0;
+  els.nextDay.disabled = idx >= dates.length - 1;
 }
 
-function configureDatePicker() {
+function scrollActivePillIntoView() {
+  const active = els.dateStrip.querySelector(".day-pill.active");
+  active?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+}
+
+function buildDateStrip() {
   const dates = sortedDates();
   if (!dates.length) return;
 
-  els.datePicker.min = dates.at(-1);
-  els.datePicker.max = dates[0];
-
   if (!state.selectedDate || !state.devotionals.has(state.selectedDate)) {
-    state.selectedDate = dates[0];
+    state.selectedDate = pickDefaultDate(dates);
   }
 
-  els.datePicker.value = state.selectedDate;
+  els.dateRange.textContent = formatRangeLabel(dates, state.lang);
+
+  const dayNameFmt = new Intl.DateTimeFormat(state.lang === "ur" ? "ur-PK" : "en-US", {
+    weekday: "short",
+  });
+
+  els.dateStrip.innerHTML = dates
+    .map((key) => {
+      const d = new Date(`${key}T12:00:00`);
+      const isActive = key === state.selectedDate;
+      return `
+        <button
+          type="button"
+          class="day-pill${isActive ? " active" : ""}"
+          data-date="${key}"
+          role="tab"
+          aria-selected="${isActive}"
+        >
+          <span class="day-name">${escapeHtml(dayNameFmt.format(d))}</span>
+          <span class="day-num">${d.getDate()}</span>
+        </button>
+      `;
+    })
+    .join("");
+
+  els.dateStrip.querySelectorAll(".day-pill").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      state.selectedDate = btn.dataset.date;
+      buildDateStrip();
+      await renderSelectedDate();
+    });
+  });
+
+  updateNavButtons();
+  scrollActivePillIntoView();
 }
 
 function renderUrduPassage(urduPassage) {
@@ -115,15 +193,9 @@ function renderDevotionalCard(devotional, urduPassage) {
     .map((item) => `<span class="chip">${escapeHtml(item)}</span>`)
     .join("");
 
-  const showUrduPassage =
-    state.lang === "ur" || state.lang === "hi" || state.lang === "en";
-
-  const languageNotice =
-    state.lang === "ur"
-      ? `<p class="notice">${escapeHtml(t(state.lang, "urduDevotionNote"))}</p>`
-      : state.lang === "hi"
-        ? `<p class="notice">${escapeHtml(t(state.lang, "hindiDevotionNote"))}</p>`
-        : "";
+  const translateNote = devotional._translated
+    ? `<p class="notice">${escapeHtml(t(state.lang, "autoTranslateNote"))}</p>`
+    : "";
 
   return `
     <div class="card">
@@ -161,8 +233,8 @@ function renderDevotionalCard(devotional, urduPassage) {
             : ""
         }
 
-        ${showUrduPassage ? renderUrduPassage(urduPassage) : ""}
-        ${languageNotice}
+        ${renderUrduPassage(urduPassage)}
+        ${translateNote}
 
         ${
           devotional.verse
@@ -246,13 +318,17 @@ async function renderSelectedDate() {
   }
 
   state.current = devotional;
-  showStatus("loading");
+  showStatus(state.lang === "ur" ? "translating" : "loading");
 
-  const urduPassage = await fetchUrduPassage(devotional.passageReference);
+  const [displayDevotional, urduPassage] = await Promise.all([
+    translateDevotional(devotional, state.lang),
+    fetchUrduPassage(devotional.passageReference),
+  ]);
 
-  els.devotional.innerHTML = renderDevotionalCard(devotional, urduPassage);
+  els.devotional.innerHTML = renderDevotionalCard(displayDevotional, urduPassage);
   hideStatus();
   els.shareBtn.classList.remove("hidden");
+  updateNavButtons();
 }
 
 async function loadDevotionals() {
@@ -268,15 +344,25 @@ async function loadDevotionals() {
     if (cached?.size) {
       state.devotionals = cached;
       showStatus("offlineCached");
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      await new Promise((resolve) => setTimeout(resolve, 700));
     } else {
       showStatus("loadError", true);
       return;
     }
   }
 
-  configureDatePicker();
+  buildDateStrip();
   await renderSelectedDate();
+}
+
+function navigateDay(offset) {
+  const dates = sortedDates();
+  const idx = dates.indexOf(state.selectedDate);
+  const next = dates[idx + offset];
+  if (!next) return;
+  state.selectedDate = next;
+  buildDateStrip();
+  renderSelectedDate();
 }
 
 function registerServiceWorker() {
@@ -322,6 +408,11 @@ function setupShare() {
 }
 
 function bindEvents() {
+  if (state.lang === "hi") {
+    state.lang = "en";
+    localStorage.setItem(STORAGE_LANG, "en");
+  }
+
   els.langSelect.value = state.lang;
   applyUiStrings(state.lang);
 
@@ -329,21 +420,20 @@ function bindEvents() {
     state.lang = event.target.value;
     localStorage.setItem(STORAGE_LANG, state.lang);
     applyUiStrings(state.lang);
-    await renderSelectedDate();
-  });
-
-  els.datePicker.addEventListener("change", async (event) => {
-    state.selectedDate = event.target.value;
+    buildDateStrip();
     await renderSelectedDate();
   });
 
   els.todayBtn.addEventListener("click", async () => {
     const dates = sortedDates();
     if (!dates.length) return;
-    state.selectedDate = dates[0];
-    els.datePicker.value = state.selectedDate;
+    state.selectedDate = pickDefaultDate(dates);
+    buildDateStrip();
     await renderSelectedDate();
   });
+
+  els.prevDay.addEventListener("click", () => navigateDay(-1));
+  els.nextDay.addEventListener("click", () => navigateDay(1));
 
   els.themeToggle.addEventListener("click", () => {
     const current = document.documentElement.getAttribute("data-theme");
