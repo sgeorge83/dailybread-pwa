@@ -20,7 +20,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-  <body>
+<body>
   <div id="install-banner" class="install-banner hidden" role="region" aria-label="Install app">
     <div class="install-text">
       <strong data-i18n="installPrompt">Install Daily Bread on your device</strong>
@@ -38,67 +38,55 @@
     </div>
   </div>
 
-  <header class="app-header">
-    <div class="header-top">
-      <div class="brand">
-        <img src="icons/icon.svg" alt="" width="44" height="44" class="brand-icon">
-        <div>
-          <h1 data-i18n="appTitle">Daily Bread</h1>
-          <p class="subtitle" data-i18n="appSubtitle">Our Daily Bread Devotional</p>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="header-row">
+        <div class="brand">
+          <img src="icons/icon.svg" alt="" width="36" height="36" class="brand-icon">
+          <div>
+            <h1 data-i18n="appTitle">Daily Bread</h1>
+            <p class="subtitle" data-i18n="appSubtitle">Our Daily Bread Devotional</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <select id="lang-select" class="toolbar-select" aria-label="Language">
+            <option value="en">EN</option>
+            <option value="ur">UR</option>
+          </select>
+          <button id="today-btn" type="button" class="toolbar-btn" data-i18n="today">Today</button>
+          <button id="install-app-btn" type="button" class="icon-btn install-header-btn hidden" aria-label="Install app">&#8681;</button>
+          <button id="theme-toggle" type="button" class="icon-btn" aria-label="Toggle theme">&#9788;</button>
+          <button id="share-btn" type="button" class="icon-btn hidden" aria-label="Share">&#8599;</button>
         </div>
       </div>
-      <div class="header-actions">
-        <button id="install-app-btn" type="button" class="icon-btn install-header-btn hidden" aria-label="Install app" title="Install app">&#8681;</button>
-        <button id="theme-toggle" type="button" class="icon-btn" aria-label="Toggle theme">&#9788;</button>
-        <button id="share-btn" type="button" class="icon-btn hidden" aria-label="Share">&#8599;</button>
-      </div>
-    </div>
 
-    <div class="controls">
-      <div class="control-group">
-        <label for="lang-select" data-i18n="language">Language</label>
-        <select id="lang-select" aria-label="Language">
-          <option value="en">English</option>
-          <option value="ur">&#1575;&#1585;&#1583;&#1608; — Roz Ki Roti</option>
-        </select>
-      </div>
-      <div class="control-group range-info">
-        <span class="range-label" data-i18n="availableRange">Available devotionals</span>
+      <div class="meta-bar">
         <span id="date-range" class="range-value">—</span>
         <span id="last-synced" class="sync-hint"></span>
       </div>
-    </div>
 
-    <div class="date-nav" aria-label="Date navigation">
-      <button id="prev-day" type="button" class="nav-arrow" aria-label="Previous day">&#8249;</button>
-      <div id="date-strip" class="date-strip" role="tablist"></div>
-      <button id="next-day" type="button" class="nav-arrow" aria-label="Next day">&#8250;</button>
-    </div>
-    <button id="today-btn" type="button" class="today-btn" data-i18n="today">Today</button>
-  </header>
+      <div class="date-nav" aria-label="Date navigation">
+        <button id="prev-day" type="button" class="nav-arrow" aria-label="Previous day">&#8249;</button>
+        <div id="date-strip" class="date-strip" role="tablist"></div>
+        <button id="next-day" type="button" class="nav-arrow" aria-label="Next day">&#8250;</button>
+      </div>
+    </header>
 
-  <main id="main" class="main">
-    <div id="status" class="status" role="status">
-      <div class="spinner" aria-hidden="true"></div>
-      <span data-i18n="loading">Loading devotional...</span>
-    </div>
-    <article id="devotional" class="devotional hidden" aria-live="polite"></article>
-  </main>
+    <main id="main" class="main">
+      <div id="status" class="status" role="status">
+        <div class="spinner" aria-hidden="true"></div>
+        <span data-i18n="loading">Loading devotional...</span>
+      </div>
+      <article id="devotional" class="devotional hidden" aria-live="polite"></article>
+    </main>
 
-  <footer class="app-footer">
-    <p>
-      <span data-i18n="sourceCredit">Devotional content from</span>
-      <a href="https://odb.org" target="_blank" rel="noopener">Our Daily Bread Ministries</a>.
-      <span data-i18n="urduCredit">Urdu scripture from</span>
-      <a href="https://urdu-bible-api.vercel.app" target="_blank" rel="noopener">Urdu Bible API</a>.
-    </p>
-    <p class="developer-credit">
+    <footer class="app-footer">
       <span data-i18n="developerCredit">Developed by</span>
       <a href="https://github.com/sgeorge83" target="_blank" rel="noopener">sgeorge83</a>
       <span>&amp;</span>
       <strong>E-Geek Creations</strong>
-    </p>
-  </footer>
+    </footer>
+  </div>
 
   <script type="module" src="js/app.js"></script>
 </body>

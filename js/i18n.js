@@ -40,6 +40,7 @@ export const UI = {
     iosInstallTitle: "Install on iPhone / iPad",
     iosInstallSteps: "In Safari, tap Share (↑) then \"Add to Home Screen\".",
     iosInstallClose: "Got it",
+    tabMore: "More",
   },
   ur: {
     appTitle: "روز کی روٹی",
@@ -82,6 +83,7 @@ export const UI = {
     iosInstallTitle: "iPhone / iPad پر انسٹال",
     iosInstallSteps: "Safari میں Share (↑) دبائیں، پھر \"Add to Home Screen\".",
     iosInstallClose: "سمجھ گیا",
+    tabMore: "مزید",
   },
 };
 

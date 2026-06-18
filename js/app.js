@@ -10,6 +10,7 @@ const state = {
   selectedDate: null,
   current: null,
   deferredPrompt: null,
+  activeTab: "devotion",
 };
 
 const els = {
@@ -191,8 +192,18 @@ function buildDateStrip() {
   scrollActivePillIntoView();
 }
 
-function renderUrduPassage(urduPassage) {
-  if (!urduPassage) return "";
+function paragraphs(text) {
+  if (!text) return "";
+  return text
+    .split(/\n{2,}/)
+    .map((para) => `<p>${escapeHtml(para)}</p>`)
+    .join("");
+}
+
+function renderUrduPanel(urduPassage) {
+  if (!urduPassage) {
+    return `<p class="empty-panel">${escapeHtml(t(state.lang, "noDevotional"))}</p>`;
+  }
 
   const verses = urduPassage.verses
     .map(
@@ -202,11 +213,8 @@ function renderUrduPassage(urduPassage) {
     .join("");
 
   return `
-    <section class="section">
-      <h3>${escapeHtml(t(state.lang, "urduPassage"))}</h3>
-      <p class="passage-ref">${escapeHtml(urduPassage.reference)}</p>
-      <div class="urdu-text">${verses}</div>
-    </section>
+    <p class="passage-ref">${escapeHtml(urduPassage.reference)}</p>
+    <div class="urdu-text">${verses}</div>
   `;
 }
 
@@ -219,116 +227,116 @@ function renderDevotionalCard(devotional, urduPassage) {
     ? `<p class="notice">${escapeHtml(t(state.lang, "autoTranslateNote"))}</p>`
     : "";
 
+  const panels = [
+    {
+      id: "devotion",
+      label: t(state.lang, "devotion"),
+      show: Boolean(devotional.content || devotional.verse),
+      html: `
+        ${devotional.verse ? `<div class="key-verse">${escapeHtml(devotional.verse)}</div>` : ""}
+        ${paragraphs(devotional.content)}
+      `,
+    },
+    {
+      id: "insights",
+      label: t(state.lang, "insights"),
+      show: Boolean(devotional.insights),
+      html: paragraphs(devotional.insights),
+    },
+    {
+      id: "reflect",
+      label: t(state.lang, "reflect"),
+      show: Boolean(devotional.response || devotional.thought),
+      html: `
+        ${devotional.response ? `<h4>${escapeHtml(t(state.lang, "reflect"))}</h4>${paragraphs(devotional.response)}` : ""}
+        ${devotional.thought ? `<h4>${escapeHtml(t(state.lang, "pray"))}</h4>${paragraphs(devotional.thought)}` : ""}
+      `,
+    },
+    {
+      id: "scripture",
+      label: t(state.lang, "urduPassage"),
+      show: Boolean(urduPassage || devotional.passageReference),
+      html: `
+        ${devotional.passageReference ? `<p class="passage-ref">${escapeHtml(devotional.passageReference)}</p>` : ""}
+        ${renderUrduPanel(urduPassage)}
+      `,
+    },
+    {
+      id: "more",
+      label: t(state.lang, "tabMore"),
+      show: Boolean(devotional.bibleInYear || devotional.audioUrl || translateNote),
+      html: `
+        ${translateNote}
+        ${devotional.bibleInYear ? `<h4>${escapeHtml(t(state.lang, "bibleInYear"))}</h4><p>${escapeHtml(devotional.bibleInYear)}</p>` : ""}
+        ${devotional.audioUrl ? `<audio controls preload="none" src="${escapeHtml(devotional.audioUrl)}"></audio>` : ""}
+        <div class="actions">
+          <a class="primary-link" href="${escapeHtml(devotional.odbUrl)}" target="_blank" rel="noopener">${escapeHtml(t(state.lang, "readFull"))}</a>
+          ${devotional.passageUrl ? `<a class="primary-link subtle-link" href="${escapeHtml(devotional.passageUrl)}" target="_blank" rel="noopener">${escapeHtml(t(state.lang, "englishPassage"))}</a>` : ""}
+        </div>
+      `,
+    },
+  ].filter((panel) => panel.show);
+
+  if (!panels.some((panel) => panel.id === state.activeTab)) {
+    state.activeTab = panels[0]?.id ?? "devotion";
+  }
+
+  const tabButtons = panels
+    .map(
+      (panel) =>
+        `<button type="button" role="tab" class="content-tab${panel.id === state.activeTab ? " active" : ""}" data-tab="${panel.id}" aria-selected="${panel.id === state.activeTab}">${escapeHtml(panel.label)}</button>`
+    )
+    .join("");
+
+  const tabPanels = panels
+    .map(
+      (panel) =>
+        `<div class="content-panel${panel.id === state.activeTab ? " active" : ""}" data-panel="${panel.id}" role="tabpanel">${panel.html}</div>`
+    )
+    .join("");
+
   return `
     <div class="card">
-      ${
-        devotional.imageUrl
-          ? `<img class="hero-image" src="${escapeHtml(devotional.imageUrl)}" alt="" loading="lazy">`
-          : ""
-      }
-      <div class="card-body">
-        <div class="meta-row">
-          <span>${escapeHtml(formatDisplayDate(devotional.dateKey, state.lang))}</span>
-          ${categories}
-        </div>
-
-        <h2>${escapeHtml(devotional.title)}</h2>
-
+      <div class="compact-head">
         ${
-          devotional.passageReference
-            ? `<p class="passage-ref">${escapeHtml(t(state.lang, "passage"))}: ${escapeHtml(devotional.passageReference)}</p>`
+          devotional.imageUrl
+            ? `<img class="thumb-image" src="${escapeHtml(devotional.imageUrl)}" alt="" loading="lazy">`
             : ""
         }
-
-        ${
-          devotional.author
-            ? `<p class="meta-row">${escapeHtml(t(state.lang, "byAuthor"))} ${escapeHtml(devotional.author)}</p>`
-            : ""
-        }
-
-        ${
-          devotional.audioUrl
-            ? `<section class="section">
-                <h3>${escapeHtml(t(state.lang, "listen"))}</h3>
-                <audio controls preload="none" src="${escapeHtml(devotional.audioUrl)}"></audio>
-              </section>`
-            : ""
-        }
-
-        ${renderUrduPassage(urduPassage)}
-        ${translateNote}
-
-        ${
-          devotional.verse
-            ? `<section class="section">
-                <h3>${escapeHtml(t(state.lang, "keyVerse"))}</h3>
-                <p>${escapeHtml(devotional.verse)}</p>
-              </section>`
-            : ""
-        }
-
-        ${
-          devotional.content
-            ? `<section class="section content-block">
-                <h3>${escapeHtml(t(state.lang, "devotion"))}</h3>
-                ${devotional.content
-                  .split(/\n{2,}/)
-                  .map((para) => `<p>${escapeHtml(para)}</p>`)
-                  .join("")}
-              </section>`
-            : ""
-        }
-
-        ${
-          devotional.insights
-            ? `<section class="section">
-                <h3>${escapeHtml(t(state.lang, "insights"))}</h3>
-                <p>${escapeHtml(devotional.insights)}</p>
-              </section>`
-            : ""
-        }
-
-        ${
-          devotional.response || devotional.thought
-            ? `<section class="section">
-                ${
-                  devotional.response
-                    ? `<h3>${escapeHtml(t(state.lang, "reflect"))}</h3><p>${escapeHtml(devotional.response)}</p>`
-                    : ""
-                }
-                ${
-                  devotional.thought
-                    ? `<h3>${escapeHtml(t(state.lang, "pray"))}</h3><p>${escapeHtml(devotional.thought)}</p>`
-                    : ""
-                }
-              </section>`
-            : ""
-        }
-
-        ${
-          devotional.bibleInYear
-            ? `<section class="section">
-                <h3>${escapeHtml(t(state.lang, "bibleInYear"))}</h3>
-                <p>${escapeHtml(devotional.bibleInYear)}</p>
-              </section>`
-            : ""
-        }
-
-        <div class="actions">
-          <a class="primary-link" href="${escapeHtml(devotional.odbUrl)}" target="_blank" rel="noopener">
-            ${escapeHtml(t(state.lang, "readFull"))}
-          </a>
+        <div class="head-text">
+          <div class="meta-row compact-meta">
+            <span>${escapeHtml(formatDisplayDate(devotional.dateKey, state.lang))}</span>
+            ${categories}
+          </div>
+          <h2>${escapeHtml(devotional.title)}</h2>
           ${
-            devotional.passageUrl
-              ? `<a class="primary-link" href="${escapeHtml(devotional.passageUrl)}" target="_blank" rel="noopener">
-                  ${escapeHtml(t(state.lang, "englishPassage"))}
-                </a>`
+            devotional.author
+              ? `<p class="author-line">${escapeHtml(t(state.lang, "byAuthor"))} ${escapeHtml(devotional.author)}</p>`
               : ""
           }
         </div>
       </div>
+
+      <div class="content-tabs" role="tablist">${tabButtons}</div>
+      <div class="content-panels">${tabPanels}</div>
     </div>
   `;
+}
+
+function bindContentTabs() {
+  els.devotional.querySelectorAll(".content-tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.activeTab = btn.dataset.tab;
+      els.devotional.querySelectorAll(".content-tab").forEach((tab) => {
+        const active = tab.dataset.tab === state.activeTab;
+        tab.classList.toggle("active", active);
+        tab.setAttribute("aria-selected", String(active));
+      });
+      els.devotional.querySelectorAll(".content-panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.dataset.panel === state.activeTab);
+      });
+    });
+  });
 }
 
 async function renderSelectedDate() {
@@ -340,6 +348,7 @@ async function renderSelectedDate() {
   }
 
   state.current = devotional;
+  state.activeTab = "devotion";
   showStatus(state.lang === "ur" ? "translating" : "loading");
 
   const [displayDevotional, urduPassage] = await Promise.all([
@@ -348,6 +357,7 @@ async function renderSelectedDate() {
   ]);
 
   els.devotional.innerHTML = renderDevotionalCard(displayDevotional, urduPassage);
+  bindContentTabs();
   hideStatus();
   els.shareBtn.classList.remove("hidden");
   updateNavButtons();
