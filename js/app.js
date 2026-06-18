@@ -4,6 +4,8 @@ import {
   cacheDevotionals,
   fetchDevotionals,
   getCachedDevotionals,
+  getLastUpdated,
+  needsRefresh,
 } from "./odb-api.js";
 import { fetchUrduPassage } from "./urdu-bible.js";
 import { translateDevotional } from "./translate.js";
@@ -21,6 +23,7 @@ const els = {
   devotional: document.getElementById("devotional"),
   dateStrip: document.getElementById("date-strip"),
   dateRange: document.getElementById("date-range"),
+  lastSynced: document.getElementById("last-synced"),
   langSelect: document.getElementById("lang-select"),
   todayBtn: document.getElementById("today-btn"),
   prevDay: document.getElementById("prev-day"),
@@ -124,6 +127,21 @@ function scrollActivePillIntoView() {
   active?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
 }
 
+function updateSyncHint() {
+  const last = getLastUpdated();
+  if (!last || !els.lastSynced) return;
+
+  const locale = state.lang === "ur" ? "ur-PK" : "en-US";
+  const timeStr = last.toLocaleString(locale, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  els.lastSynced.textContent = `${t(state.lang, "lastSynced")}: ${timeStr}`;
+}
+
 function buildDateStrip() {
   const dates = sortedDates();
   if (!dates.length) return;
@@ -133,6 +151,7 @@ function buildDateStrip() {
   }
 
   els.dateRange.textContent = formatRangeLabel(dates, state.lang);
+  updateSyncHint();
 
   const dayNameFmt = new Intl.DateTimeFormat(state.lang === "ur" ? "ur-PK" : "en-US", {
     weekday: "short",
@@ -331,28 +350,56 @@ async function renderSelectedDate() {
   updateNavButtons();
 }
 
-async function loadDevotionals() {
-  showStatus("loading");
+async function loadDevotionals(options = {}) {
+  const { silent = false } = options;
+
+  if (!silent) showStatus("loading");
+
+  const previousDates = new Set(state.devotionals.keys());
 
   try {
     const map = await fetchDevotionals();
     state.devotionals = map;
     cacheDevotionals(map);
+
+    const newDates = [...map.keys()].filter((d) => !previousDates.has(d));
+    if (newDates.length && !silent) {
+      state.selectedDate = pickDefaultDate(sortedDates());
+    }
   } catch (error) {
     console.error(error);
     const cached = getCachedDevotionals();
     if (cached?.size) {
       state.devotionals = cached;
-      showStatus("offlineCached");
-      await new Promise((resolve) => setTimeout(resolve, 700));
-    } else {
+      if (!silent) {
+        showStatus("offlineCached");
+        await new Promise((resolve) => setTimeout(resolve, 700));
+      }
+    } else if (!silent) {
       showStatus("loadError", true);
-      return;
+      return false;
     }
+    return false;
   }
 
   buildDateStrip();
   await renderSelectedDate();
+  return true;
+}
+
+function setupAutoRefresh() {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && needsRefresh()) {
+      loadDevotionals({ silent: true });
+    }
+  });
+
+  /* Re-check every hour while app stays open (e.g. overnight tab) */
+  setInterval(() => {
+    if (document.visibilityState === "visible" && needsRefresh()) {
+      loadDevotionals({ silent: true });
+    }
+  }, 60 * 60 * 1000);
 }
 
 function navigateDay(offset) {
@@ -446,4 +493,5 @@ bindEvents();
 setupInstallPrompt();
 setupShare();
 registerServiceWorker();
+setupAutoRefresh();
 loadDevotionals();

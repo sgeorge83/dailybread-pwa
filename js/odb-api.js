@@ -73,3 +73,25 @@ export function cacheDevotionals(map) {
   localStorage.setItem("dailybread-devotionals", JSON.stringify(entries));
   localStorage.setItem("dailybread-devotionals-updated", new Date().toISOString());
 }
+
+export function getLastUpdated() {
+  const raw = localStorage.getItem("dailybread-devotionals-updated");
+  return raw ? new Date(raw) : null;
+}
+
+/** True when we should pull fresh data from ODB (new day or stale > 6 hours) */
+export function needsRefresh() {
+  const last = getLastUpdated();
+  if (!last) return true;
+
+  const now = new Date();
+  const sameDay =
+    last.getFullYear() === now.getFullYear() &&
+    last.getMonth() === now.getMonth() &&
+    last.getDate() === now.getDate();
+
+  if (!sameDay) return true;
+
+  const hoursSince = (now - last) / (1000 * 60 * 60);
+  return hoursSince >= 6;
+}

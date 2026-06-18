@@ -240,6 +240,13 @@ a {
   color: var(--accent);
 }
 
+.sync-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: 0.15rem;
+}
+
 .date-nav {
   display: flex;
   align-items: center;
