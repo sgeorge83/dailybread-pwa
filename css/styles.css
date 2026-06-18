@@ -271,7 +271,8 @@ body.layout-desktop .app-footer {
   cursor: pointer;
 }
 
-.ios-hint {
+.ios-hint,
+.app-dialog {
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -282,12 +283,43 @@ body.layout-desktop .app-footer {
   padding: 1rem;
 }
 
-.ios-hint-card {
+.ios-hint-card,
+.app-dialog-card {
   max-width: 340px;
   padding: 1.15rem;
   border-radius: var(--radius);
   background: var(--surface);
   border: 1px solid var(--border);
+}
+
+.about-dialog-card {
+  max-width: 420px;
+  max-height: min(85vh, 640px);
+  overflow-y: auto;
+}
+
+.about-dialog-card h2 {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+}
+
+.about-dialog-card h3 {
+  margin: 1rem 0 0.45rem;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.about-dialog-card p {
+  margin: 0 0 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+body[dir="rtl"] .about-dialog-card p {
+  line-height: 2;
 }
 
 .ios-hint-card h3 {
@@ -382,6 +414,77 @@ body.layout-desktop .brand h1 {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 0.75rem;
+}
+
+.about-card {
+  margin-top: 0.75rem;
+}
+
+.about-heading {
+  margin: 0 0 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.about-lead {
+  margin: 0 0 0.65rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+body[dir="rtl"] .about-lead {
+  line-height: 2;
+}
+
+.about-list {
+  margin: 0 0 0.65rem;
+  padding-inline-start: 1.1rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+body[dir="rtl"] .about-list {
+  line-height: 1.9;
+}
+
+.about-list li {
+  margin-bottom: 0.3rem;
+}
+
+.about-more-btn {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
+  background: var(--surface-muted);
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.about-more-btn:hover {
+  background: var(--accent-soft);
+}
+
+body.layout-desktop .about-card {
+  margin-top: 1rem;
+}
+
+.footer-tagline {
+  margin: 0 0 0.65rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text);
+  font-weight: 600;
+}
+
+body[dir="rtl"] .footer-tagline {
+  line-height: 2;
 }
 
 .meta-bar {

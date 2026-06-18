@@ -2,7 +2,7 @@
   "id": "/dailybread-pwa/",
   "name": "Daily Bread — Roz Ki Roti",
   "short_name": "Daily Bread",
-  "description": "Our Daily Bread devotionals with Urdu scripture and auto-translation",
+  "description": "Free installable app for Our Daily Bread devotionals in English & Urdu (Roz Ki Roti), with audio and Urdu Geo Scripture from ODB API.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

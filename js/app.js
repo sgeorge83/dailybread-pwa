@@ -31,6 +31,10 @@ const els = {
   installAppBtn: document.getElementById("install-app-btn"),
   iosHint: document.getElementById("ios-install-hint"),
   iosHintClose: document.getElementById("ios-hint-close"),
+  aboutBtn: document.getElementById("about-btn"),
+  aboutMoreBtn: document.getElementById("about-more-btn"),
+  aboutDialog: document.getElementById("about-dialog"),
+  aboutClose: document.getElementById("about-close"),
 };
 
 function escapeHtml(value) {
@@ -529,6 +533,18 @@ function applyLayoutMode() {
   document.body.classList.toggle("layout-mobile", !isDesktop);
 }
 
+function setupAboutDialog() {
+  const open = () => els.aboutDialog?.classList.remove("hidden");
+  const close = () => els.aboutDialog?.classList.add("hidden");
+
+  els.aboutBtn?.addEventListener("click", open);
+  els.aboutMoreBtn?.addEventListener("click", open);
+  els.aboutClose?.addEventListener("click", close);
+  els.aboutDialog?.addEventListener("click", (event) => {
+    if (event.target === els.aboutDialog) close();
+  });
+}
+
 function bindEvents() {
   els.langSelect.value = state.lang;
   applyUiStrings(state.lang);
@@ -564,6 +580,7 @@ function bindEvents() {
 
 initTheme();
 bindEvents();
+setupAboutDialog();
 setupShare();
 setupInstallPrompt();
 registerServiceWorker();

@@ -1,39 +1,52 @@
-# Daily Bread PWA
+# Daily Bread — Roz Ki Roti / روز کی روٹی
 
-A multilingual Progressive Web App for [Our Daily Bread](https://odb.org) devotionals, powered by the official ODB Experience API and [Urdu Bible API](https://urdu-bible-api.vercel.app).
+**Live app:** https://sgeorge83.github.io/dailybread-pwa/
 
-**Live demo:** enable GitHub Pages (see below) at `https://sgeorge83.github.io/dailybread-pwa/`
+---
 
-## Features
+## About Daily Bread
 
-- Daily devotionals from `https://api.experience.odb.org/devotionals/` (currently ~3 weeks per API window)
-- **Live calendar** — day strip rebuilds automatically when ODB API adds or removes dates
-- **English** — full ODB devotional
-- **Urdu (Roz Ki Roti / روز کی روٹی)** — auto-translated devotion + Urdu scripture from Urdu Bible API
-- Audio, hero image, dark/light theme, share
-- **Online-only devotionals** — always fetches fresh data from the API (internet required)
-- **Installable app** — Windows (Chrome/Edge), Android (Chrome), iPhone/iPad (Safari Add to Home Screen)
+**Daily Bread** (Urdu: **Roz Ki Roti / روز کی روٹی**) is a free installable web app that brings [Our Daily Bread](https://odb.org) devotionals to your phone, tablet, or desktop — no app store required.
+
+Read today's devotion, insights, reflection, and prayer. Listen to daily audio. Switch to Urdu for auto-translated devotional text and Urdu Scripture from the **Urdu Geo Version** via the [Urdu Bible API](https://urdu-bible-api.vercel.app).
+
+The calendar updates automatically from the official ODB Experience API. Install it on Windows, Android, or iPhone/iPad and open it like a native app from your home screen.
+
+### Highlights
+
+- Live calendar from the official ODB API (~3-week rolling window)
+- English & Urdu · audio · dark/light theme
+- Tabs: Devotion · Insights · Reflect · Scripture
+- Installable PWA — Windows, Android, iPhone/iPad
+- Responsive layout — desktop website view + compact mobile app view
+- Internet required for daily content
+
+### Content sources
+
+| Content | Source |
+|---------|--------|
+| Devotional text, images & audio | [Our Daily Bread Ministries](https://odb.org) |
+| Urdu Scripture | Urdu Geo Version · [Urdu Bible API](https://urdu-bible-api.vercel.app) |
+| Urdu devotional text | Auto-translated when Urdu is selected (not official ODB Urdu) |
+
+**Developed by** [sgeorge83](https://github.com/sgeorge83) & **E-Geek Creations**
+
+---
+
+## Install the app
+
+| Device | How to install |
+|--------|----------------|
+| **Windows** | Open in Chrome or Edge → click **About** or **↓ Install** in the header |
+| **Android** | Chrome → **Install** banner or menu → *Add to Home screen* |
+| **iPhone / iPad** | Safari only → tap **↓ Install** → follow *Share → Add to Home Screen* |
 
 ## Languages
 
 | Language | Devotional text | Scripture |
 |----------|-----------------|-----------|
 | English  | ODB API (official) | English reference |
-| Urdu     | Auto-translated via Google/MyMemory | Urdu Geo Version via Urdu Bible API |
-
-The calendar **auto-updates** when you open the app, return to the tab, or press Today — it always reflects whatever dates ODB currently exposes (~3 weeks rolling window).
-
-Auto-translation runs when you switch to Urdu. Translation results are cached in the browser for speed; devotional content always comes live from the API.
-
-## Install the app
-
-| Device | How to install |
-|--------|----------------|
-| **Windows** | Open in Chrome or Edge → click **↓ Install** in the header, or use browser menu → *Install Daily Bread* |
-| **Android** | Chrome → **Install** banner or menu → *Add to Home screen* |
-| **iPhone / iPad** | Safari only → tap **↓ Install** → follow *Share → Add to Home Screen* |
-
-Devotionals still require internet after install — the app shell installs locally; daily content loads from the ODB API.
+| Urdu     | Auto-translated | Urdu Geo Version via Urdu Bible API |
 
 ## Project structure
 
@@ -43,6 +56,9 @@ dailybread-pwa/
 ├── manifest.json
 ├── service-worker.js
 ├── css/styles.css
+├── docs/
+│   ├── ABOUT.md
+│   └── RELEASE-v1.0.0.md
 ├── js/
 │   ├── app.js
 │   ├── config.js
@@ -52,12 +68,10 @@ dailybread-pwa/
 │   ├── urdu-glossary.js
 │   ├── bible-ref.js
 │   └── urdu-bible.js
-└── icons/icon.svg
+└── icons/
 ```
 
 ## Run locally
-
-Any static file server works:
 
 ```powershell
 cd dailybread-pwa
@@ -74,8 +88,6 @@ Open [http://localhost:8080](http://localhost:8080)
 2. In GitHub: **Settings → Pages → Build and deployment → GitHub Actions**
 3. The included workflow (`.github/workflows/pages.yml`) publishes on push to `main`
 
-Or manually: **Settings → Pages → Deploy from branch → `main` / root**.
-
 ## APIs used
 
 | API | Purpose |
@@ -88,6 +100,8 @@ Or manually: **Settings → Pages → Deploy from branch → `main` / root**.
 - Devotional content © [Our Daily Bread Ministries](https://odb.org)
 - Urdu Bible text © Urdu Geo Version (CC BY-NC-ND 4.0) via [urdu-bible-data](https://github.com/sgeorge83/urdu-bible-data)
 
-## Author
+## Releases
 
-Sharoon George ([@sgeorge83](https://github.com/sgeorge83))
+Create a release at: https://github.com/sgeorge83/dailybread-pwa/releases/new
+
+Release notes template: see [`docs/RELEASE-v1.0.0.md`](docs/RELEASE-v1.0.0.md)

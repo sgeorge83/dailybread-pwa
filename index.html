@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="Daily Bread (Roz Ki Roti) — Our Daily Bread devotionals with Urdu scripture">
+  <meta name="description" content="Daily Bread (Roz Ki Roti / روز کی روٹی) — free installable app for Our Daily Bread devotionals in English & Urdu, with audio and Urdu Geo Scripture.">
   <meta name="theme-color" content="#8b6914">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -30,6 +30,27 @@
     <button id="install-dismiss" type="button" class="install-dismiss" aria-label="Dismiss">&times;</button>
   </div>
 
+  <div id="about-dialog" class="app-dialog hidden" role="dialog" aria-labelledby="about-dialog-title" aria-modal="true">
+    <div class="app-dialog-card about-dialog-card">
+      <h2 id="about-dialog-title" data-i18n="aboutTitle">About Daily Bread</h2>
+      <p class="about-lead" data-i18n="aboutLead">Daily Bread (Urdu: Roz Ki Roti / روز کی روٹی) is a free installable web app for Our Daily Bread devotionals on your phone, tablet, or desktop — no app store needed.</p>
+      <p data-i18n="aboutBody">Read today's devotion, insights, reflection, and prayer. Listen to daily audio. Switch to Urdu for auto-translated devotional text and Urdu Scripture from the Urdu Geo Version.</p>
+      <ul class="about-list">
+        <li data-i18n="aboutFeature1">Live calendar from the official ODB API</li>
+        <li data-i18n="aboutFeature2">English &amp; Urdu · audio · dark mode</li>
+        <li data-i18n="aboutFeature3">Install on Windows, Android, or iPhone/iPad</li>
+        <li data-i18n="aboutFeature4">Internet required for daily content</li>
+      </ul>
+      <h3 class="about-sources-title" data-i18n="aboutSourcesTitle">Content sources</h3>
+      <ul class="about-list about-sources-list">
+        <li data-i18n="aboutSourceDevotional">Devotional text, images &amp; audio — Our Daily Bread (ODB.org)</li>
+        <li data-i18n="aboutSourceScripture">Urdu Scripture — Urdu Geo Version via Urdu Bible API</li>
+        <li data-i18n="aboutSourceTranslate">Urdu devotional — auto-translated when Urdu is selected (not official ODB Urdu)</li>
+      </ul>
+      <button type="button" id="about-close" class="install-action" data-i18n="aboutClose">Close</button>
+    </div>
+  </div>
+
   <div id="ios-install-hint" class="ios-hint hidden" role="dialog" aria-labelledby="ios-hint-title">
     <div class="ios-hint-card">
       <h3 id="ios-hint-title" data-i18n="iosInstallTitle">Install on iPhone / iPad</h3>
@@ -53,6 +74,7 @@
             <option value="en">English</option>
             <option value="ur">&#1575;&#1585;&#1583;&#1608;</option>
           </select>
+          <button id="about-btn" type="button" class="toolbar-btn" data-i18n="aboutBtn">About</button>
           <button id="today-btn" type="button" class="toolbar-btn" data-i18n="today">Today</button>
           <button id="install-app-btn" type="button" class="icon-btn install-header-btn hidden" aria-label="Install app">&#8681;</button>
           <button id="theme-toggle" type="button" class="icon-btn" aria-label="Toggle theme">&#9788;</button>
@@ -75,6 +97,17 @@
             <button id="next-day" type="button" class="nav-arrow" aria-label="Next day">&#8250;</button>
           </div>
         </div>
+
+        <div class="about-card sidebar-card">
+          <h2 class="about-heading" data-i18n="aboutTitle">About Daily Bread</h2>
+          <p class="about-lead" data-i18n="aboutLead">Daily Bread (Urdu: Roz Ki Roti / روز کی روٹی) is a free installable web app for Our Daily Bread devotionals on your phone, tablet, or desktop — no app store needed.</p>
+          <ul class="about-list">
+            <li data-i18n="aboutFeature1">Live calendar from the official ODB API</li>
+            <li data-i18n="aboutFeature2">English &amp; Urdu · audio · dark mode</li>
+            <li data-i18n="aboutFeature3">Install on Windows, Android, or iPhone/iPad</li>
+          </ul>
+          <button type="button" id="about-more-btn" class="about-more-btn" data-i18n="aboutReadMore">Learn more</button>
+        </div>
       </aside>
 
       <main id="main" class="main">
@@ -87,6 +120,7 @@
     </div>
 
     <footer class="app-footer">
+      <p class="footer-tagline" data-i18n="aboutTagline">Your daily devotional from Our Daily Bread — in English and Urdu.</p>
       <div class="source-credits">
         <p>
           <span data-i18n="sourceDevotionalPref">Devotional content from</span>
