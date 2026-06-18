@@ -13,6 +13,12 @@ export const UI = {
     noDevotional: "No devotional found for this date.",
     sourceCredit: "Devotional content from",
     urduCredit: "Urdu scripture from",
+    sourceDevotionalPref: "Devotional content from",
+    sourceUrduScripturePref: "Urdu Scripture from",
+    sourceUrduGeoName: "Urdu Geo Version · Urdu Bible API",
+    sourceUrduTranslateLine:
+      "When Urdu is selected, the devotional text is auto-translated to Urdu (not the official ODB Urdu edition).",
+    sourceScriptureTabNote: "Urdu Scripture text: Urdu Geo Version via Urdu Bible API.",
     byAuthor: "By",
     keyVerse: "Key Verse",
     passage: "Scripture Passage",
@@ -56,6 +62,12 @@ export const UI = {
     noDevotional: "اس تاریخ کے لیے کوئی مضمون نہیں ملا۔",
     sourceCredit: "مضمون کا ماخذ",
     urduCredit: "اردو کلام مقدس",
+    sourceDevotionalPref: "مضمون کا ماخذ",
+    sourceUrduScripturePref: "اردو کتابِ مقدس",
+    sourceUrduGeoName: "Urdu Geo Version · Urdu Bible API",
+    sourceUrduTranslateLine:
+      "اردو میں مضمون خودکار ترجمہ ہے (ODB کا باضابطہ اردو ترجمہ نہیں)۔",
+    sourceScriptureTabNote: "اردو متن: Urdu Geo Version — Urdu Bible API سے۔",
     byAuthor: "مصنف",
     keyVerse: "اہم آیت",
     passage: "کتاب مقدس کا حوالہ",
@@ -96,6 +108,8 @@ export function applyUiStrings(lang) {
     const key = el.getAttribute("data-i18n");
     el.textContent = t(lang, key);
   });
+
+  document.getElementById("ur-translate-source")?.classList.toggle("hidden", lang !== "ur");
 
   document.documentElement.lang = lang === "ur" ? "ur" : "en";
   document.body.dir = lang === "ur" ? "rtl" : "ltr";

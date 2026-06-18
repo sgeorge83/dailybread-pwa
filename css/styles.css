@@ -827,6 +827,46 @@ audio {
   color: var(--text-muted);
 }
 
+.source-credits {
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.55;
+}
+
+.source-credits p {
+  margin: 0 0 0.35rem;
+}
+
+.source-credits p:last-child {
+  margin-bottom: 0;
+}
+
+.source-credits a {
+  font-weight: 600;
+}
+
+.developer-line {
+  margin: 0;
+}
+
+body[dir="rtl"] .source-credits {
+  line-height: 2;
+}
+
+.source-note {
+  margin: 1rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+body[dir="rtl"] .source-note {
+  line-height: 2;
+}
+
 body.layout-mobile .app-footer {
   padding-bottom: max(0.5rem, var(--safe-bottom));
 }

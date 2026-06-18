@@ -257,6 +257,7 @@ function renderDevotionalCard(devotional, urduPassage) {
       html: `
         ${devotional.passageReference ? `<p class="passage-ref">${escapeHtml(devotional.passageReference)}</p>` : ""}
         ${renderUrduPanel(urduPassage)}
+        ${urduPassage ? `<p class="source-note">${escapeHtml(t(state.lang, "sourceScriptureTabNote"))}</p>` : ""}
       `,
     },
   ].filter((panel) => panel.show);
