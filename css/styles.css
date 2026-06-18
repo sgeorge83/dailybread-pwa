@@ -67,6 +67,91 @@ a {
   display: none !important;
 }
 
+.install-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: var(--accent);
+  color: #fff;
+}
+
+.install-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.install-text strong {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.install-help {
+  font-size: 0.78rem;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.install-action {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.5rem 0.9rem;
+  background: #fff;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.install-dismiss {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+
+.ios-hint {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(20, 17, 13, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.ios-hint-card {
+  max-width: 340px;
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+.ios-hint-card h3 {
+  margin: 0 0 0.65rem;
+  font-size: 1.05rem;
+}
+
+.ios-hint-card p {
+  margin: 0 0 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.install-header-btn {
+  font-weight: 700;
+}
+
 .app-header,
 .main,
 .app-footer {

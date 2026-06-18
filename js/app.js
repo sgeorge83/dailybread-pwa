@@ -9,6 +9,7 @@ const state = {
   devotionals: new Map(),
   selectedDate: null,
   current: null,
+  deferredPrompt: null,
 };
 
 const els = {
@@ -23,6 +24,12 @@ const els = {
   nextDay: document.getElementById("next-day"),
   themeToggle: document.getElementById("theme-toggle"),
   shareBtn: document.getElementById("share-btn"),
+  installBanner: document.getElementById("install-banner"),
+  installBtn: document.getElementById("install-btn"),
+  installDismiss: document.getElementById("install-dismiss"),
+  installAppBtn: document.getElementById("install-app-btn"),
+  iosHint: document.getElementById("ios-install-hint"),
+  iosHintClose: document.getElementById("ios-hint-close"),
 };
 
 function escapeHtml(value) {
@@ -411,11 +418,72 @@ async function clearLegacyServiceWorkers() {
   if (!("serviceWorker" in navigator)) return;
 
   const regs = await navigator.serviceWorker.getRegistrations();
-  await Promise.all(regs.map((reg) => reg.unregister()));
+  const stale = regs.filter((reg) => !reg.active?.scriptURL.includes("service-worker.js"));
+  await Promise.all(stale.map((reg) => reg.unregister()));
+}
 
-  if ("caches" in window) {
-    const keys = await caches.keys();
-    await Promise.all(keys.map((key) => caches.delete(key)));
+function isIOS() {
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
+}
+
+function isInstalled() {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+}
+
+async function triggerInstall() {
+  if (isInstalled()) return;
+
+  if (state.deferredPrompt) {
+    state.deferredPrompt.prompt();
+    await state.deferredPrompt.userChoice;
+    state.deferredPrompt = null;
+    els.installBanner?.classList.add("hidden");
+    return;
+  }
+
+  if (isIOS()) {
+    els.iosHint?.classList.remove("hidden");
+  }
+}
+
+function setupInstallPrompt() {
+  if (isInstalled()) return;
+
+  els.installAppBtn?.classList.remove("hidden");
+
+  if (isIOS()) {
+    els.installAppBtn?.addEventListener("click", () => els.iosHint?.classList.remove("hidden"));
+    els.iosHintClose?.addEventListener("click", () => els.iosHint?.classList.add("hidden"));
+  } else {
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      state.deferredPrompt = event;
+      els.installBanner?.classList.remove("hidden");
+    });
+
+    els.installBtn?.addEventListener("click", triggerInstall);
+    els.installAppBtn?.addEventListener("click", triggerInstall);
+    els.installDismiss?.addEventListener("click", () => {
+      els.installBanner?.classList.add("hidden");
+    });
+
+    window.addEventListener("appinstalled", () => {
+      state.deferredPrompt = null;
+      els.installBanner?.classList.add("hidden");
+      els.installAppBtn?.classList.add("hidden");
+    });
+  }
+}
+
+function registerServiceWorker() {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./service-worker.js").catch(console.error);
   }
 }
 
@@ -478,5 +546,7 @@ function bindEvents() {
 initTheme();
 bindEvents();
 setupShare();
+setupInstallPrompt();
+registerServiceWorker();
 setupAutoRefresh();
-clearLegacyServiceWorkers().finally(() => loadDevotionals());
+loadDevotionals();

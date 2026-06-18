@@ -34,6 +34,12 @@ export const UI = {
     autoUpdates: "calendar updates live from ODB API",
     prevDay: "Previous day",
     nextDay: "Next day",
+    installPrompt: "Install Daily Bread on your device",
+    installHelp: "Opens like an app from your home screen or desktop. Internet required for daily devotionals.",
+    install: "Install",
+    iosInstallTitle: "Install on iPhone / iPad",
+    iosInstallSteps: "In Safari, tap Share (↑) then \"Add to Home Screen\".",
+    iosInstallClose: "Got it",
   },
   ur: {
     appTitle: "روز کی روٹی",
@@ -70,6 +76,12 @@ export const UI = {
     autoUpdates: "کیلنڈر ODB API سے براہِ راست اپ ڈیٹ ہوتا ہے",
     prevDay: "پچھلا دن",
     nextDay: "اگلا دن",
+    installPrompt: "روز کی روٹی اپنے آلے پر انسٹال کریں",
+    installHelp: "ہوم اسکرین یا ڈیسک ٹاپ سے ایپ کی طرح کھلتی ہے۔ روزانہ مضامین کے لیے انٹرنیٹ ضروری ہے۔",
+    install: "انسٹال",
+    iosInstallTitle: "iPhone / iPad پر انسٹال",
+    iosInstallSteps: "Safari میں Share (↑) دبائیں، پھر \"Add to Home Screen\".",
+    iosInstallClose: "سمجھ گیا",
   },
 };
 

@@ -11,7 +11,8 @@ A multilingual Progressive Web App for [Our Daily Bread](https://odb.org) devoti
 - **English** — full ODB devotional
 - **Urdu (Roz Ki Roti / روز کی روٹی)** — auto-translated devotion + Urdu scripture from Urdu Bible API
 - Audio, hero image, dark/light theme, share
-- **Online-only** — always fetches fresh data from the API (internet required)
+- **Online-only devotionals** — always fetches fresh data from the API (internet required)
+- **Installable app** — Windows (Chrome/Edge), Android (Chrome), iPhone/iPad (Safari Add to Home Screen)
 
 ## Languages
 
@@ -24,12 +25,23 @@ The calendar **auto-updates** when you open the app, return to the tab, or press
 
 Auto-translation runs when you switch to Urdu. Translation results are cached in the browser for speed; devotional content always comes live from the API.
 
+## Install the app
+
+| Device | How to install |
+|--------|----------------|
+| **Windows** | Open in Chrome or Edge → click **↓ Install** in the header, or use browser menu → *Install Daily Bread* |
+| **Android** | Chrome → **Install** banner or menu → *Add to Home screen* |
+| **iPhone / iPad** | Safari only → tap **↓ Install** → follow *Share → Add to Home Screen* |
+
+Devotionals still require internet after install — the app shell installs locally; daily content loads from the ODB API.
+
 ## Project structure
 
 ```text
 dailybread-pwa/
 ├── index.html
 ├── manifest.json
+├── service-worker.js
 ├── css/styles.css
 ├── js/
 │   ├── app.js
