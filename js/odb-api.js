@@ -1,5 +1,7 @@
 import { ODB_API } from "./config.js";
 
+const SYNC_KEY = "dailybread-last-sync";
+
 function dateKeyFromMs(ms) {
   return new Date(ms).toISOString().slice(0, 10);
 }
@@ -41,7 +43,10 @@ export function normalizeDevotional(item) {
 }
 
 export async function fetchDevotionals() {
-  const response = await fetch(ODB_API, { cache: "no-store" });
+  const response = await fetch(ODB_API, {
+    cache: "no-store",
+    headers: { "Cache-Control": "no-cache" },
+  });
   if (!response.ok) {
     throw new Error(`ODB API error: ${response.status}`);
   }
@@ -54,32 +59,16 @@ export async function fetchDevotionals() {
     map.set(devotional.dateKey, devotional);
   }
 
+  sessionStorage.setItem(SYNC_KEY, new Date().toISOString());
   return map;
 }
 
-export function getCachedDevotionals() {
-  try {
-    const raw = localStorage.getItem("dailybread-devotionals");
-    if (!raw) return null;
-    const entries = JSON.parse(raw);
-    return new Map(Object.entries(entries));
-  } catch {
-    return null;
-  }
-}
-
-export function cacheDevotionals(map) {
-  const entries = Object.fromEntries(map.entries());
-  localStorage.setItem("dailybread-devotionals", JSON.stringify(entries));
-  localStorage.setItem("dailybread-devotionals-updated", new Date().toISOString());
-}
-
 export function getLastUpdated() {
-  const raw = localStorage.getItem("dailybread-devotionals-updated");
+  const raw = sessionStorage.getItem(SYNC_KEY);
   return raw ? new Date(raw) : null;
 }
 
-/** True when we should pull fresh data from ODB (new day or stale > 6 hours) */
+/** Re-fetch when a new calendar day starts or data is older than 4 hours */
 export function needsRefresh() {
   const last = getLastUpdated();
   if (!last) return true;
@@ -92,6 +81,5 @@ export function needsRefresh() {
 
   if (!sameDay) return true;
 
-  const hoursSince = (now - last) / (1000 * 60 * 60);
-  return hoursSince >= 6;
+  return (now - last) / (1000 * 60 * 60) >= 4;
 }

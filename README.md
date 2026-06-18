@@ -7,10 +7,11 @@ A multilingual Progressive Web App for [Our Daily Bread](https://odb.org) devoti
 ## Features
 
 - Daily devotionals from `https://api.experience.odb.org/devotionals/` (currently ~3 weeks per API window)
-- **Scrollable day picker** — only dates the API actually provides (no empty calendar days)
+- **Live calendar** — day strip rebuilds automatically when ODB API adds or removes dates
 - **English** — full ODB devotional
-- **Urdu (Roz Ki Roti / روز کی روٹی)** — auto-translated devotion, insights, reflect & pray + Urdu scripture from Urdu Bible API
-- Audio, hero image, dark/light theme, offline PWA, install & share
+- **Urdu (Roz Ki Roti / روز کی روٹی)** — auto-translated devotion + Urdu scripture from Urdu Bible API
+- Audio, hero image, dark/light theme, share
+- **Online-only** — always fetches fresh data from the API (internet required)
 
 ## Languages
 
@@ -19,9 +20,9 @@ A multilingual Progressive Web App for [Our Daily Bread](https://odb.org) devoti
 | English  | ODB API (official) | English reference |
 | Urdu     | Auto-translated via Google/MyMemory | Urdu Geo Version via Urdu Bible API |
 
-The ODB Experience API currently returns **~21 days** of English devotionals at a time (e.g. Jun 8–28). The date strip is built only from those available dates.
+The calendar **auto-updates** when you open the app, return to the tab, or press Today — it always reflects whatever dates ODB currently exposes (~3 weeks rolling window).
 
-Auto-translation runs when you switch to Urdu. Results are cached locally so repeat visits are faster. A small note appears when content is auto-translated.
+Auto-translation runs when you switch to Urdu. Translation results are cached in the browser for speed; devotional content always comes live from the API.
 
 ## Project structure
 
@@ -29,16 +30,16 @@ Auto-translation runs when you switch to Urdu. Results are cached locally so rep
 dailybread-pwa/
 ├── index.html
 ├── manifest.json
-├── service-worker.js
 ├── css/styles.css
 ├── js/
-│   ├── app.js          # UI and state
-│   ├── config.js       # API URLs
-│   ├── i18n.js         # UI strings (en / ur / hi)
-│   ├── odb-api.js      # ODB JSON API client
-│   ├── translate.js    # Auto-translate to Urdu (cached)
-│   ├── bible-ref.js    # Scripture reference parser
-│   └── urdu-bible.js   # Urdu passage fetcher
+│   ├── app.js
+│   ├── config.js
+│   ├── i18n.js
+│   ├── odb-api.js
+│   ├── translate.js
+│   ├── urdu-glossary.js
+│   ├── bible-ref.js
+│   └── urdu-bible.js
 └── icons/icon.svg
 ```
 

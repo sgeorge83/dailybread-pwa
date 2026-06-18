@@ -1,21 +1,14 @@
 import { STORAGE_LANG, STORAGE_THEME } from "./config.js";
 import { applyUiStrings, t } from "./i18n.js";
-import {
-  cacheDevotionals,
-  fetchDevotionals,
-  getCachedDevotionals,
-  getLastUpdated,
-  needsRefresh,
-} from "./odb-api.js";
+import { fetchDevotionals, getLastUpdated, needsRefresh } from "./odb-api.js";
 import { fetchUrduPassage } from "./urdu-bible.js";
 import { translateDevotional } from "./translate.js";
 
 const state = {
   lang: localStorage.getItem(STORAGE_LANG) || "en",
-  devotionals: getCachedDevotionals() || new Map(),
+  devotionals: new Map(),
   selectedDate: null,
   current: null,
-  deferredPrompt: null,
 };
 
 const els = {
@@ -30,9 +23,6 @@ const els = {
   nextDay: document.getElementById("next-day"),
   themeToggle: document.getElementById("theme-toggle"),
   shareBtn: document.getElementById("share-btn"),
-  installBanner: document.getElementById("install-banner"),
-  installBtn: document.getElementById("install-btn"),
-  installDismiss: document.getElementById("install-dismiss"),
 };
 
 function escapeHtml(value) {
@@ -139,7 +129,7 @@ function updateSyncHint() {
     minute: "2-digit",
   });
 
-  els.lastSynced.textContent = `${t(state.lang, "lastSynced")}: ${timeStr}`;
+  els.lastSynced.textContent = `${t(state.lang, "lastSynced")}: ${timeStr} · ${t(state.lang, "autoUpdates")}`;
 }
 
 function buildDateStrip() {
@@ -161,10 +151,11 @@ function buildDateStrip() {
     .map((key) => {
       const d = new Date(`${key}T12:00:00`);
       const isActive = key === state.selectedDate;
+      const isToday = key === new Date().toISOString().slice(0, 10);
       return `
         <button
           type="button"
-          class="day-pill${isActive ? " active" : ""}"
+          class="day-pill${isActive ? " active" : ""}${isToday ? " is-today" : ""}"
           data-date="${key}"
           role="tab"
           aria-selected="${isActive}"
@@ -355,30 +346,27 @@ async function loadDevotionals(options = {}) {
 
   if (!silent) showStatus("loading");
 
-  const previousDates = new Set(state.devotionals.keys());
+  const previousDates = sortedDates();
+  const previousMax = previousDates.at(-1) ?? "";
+  const previousCount = previousDates.length;
 
   try {
     const map = await fetchDevotionals();
-    state.devotionals = map;
-    cacheDevotionals(map);
+    const newDates = [...map.keys()].sort();
+    const newMax = newDates.at(-1) ?? "";
+    const calendarChanged =
+      newMax !== previousMax ||
+      newDates.length !== previousCount ||
+      newDates.some((d) => !previousDates.includes(d));
 
-    const newDates = [...map.keys()].filter((d) => !previousDates.has(d));
-    if (newDates.length && !silent) {
-      state.selectedDate = pickDefaultDate(sortedDates());
+    state.devotionals = map;
+
+    if (calendarChanged || !state.selectedDate) {
+      state.selectedDate = pickDefaultDate(newDates);
     }
   } catch (error) {
     console.error(error);
-    const cached = getCachedDevotionals();
-    if (cached?.size) {
-      state.devotionals = cached;
-      if (!silent) {
-        showStatus("offlineCached");
-        await new Promise((resolve) => setTimeout(resolve, 700));
-      }
-    } else if (!silent) {
-      showStatus("loadError", true);
-      return false;
-    }
+    if (!silent) showStatus("onlineRequired", true);
     return false;
   }
 
@@ -394,12 +382,19 @@ function setupAutoRefresh() {
     }
   });
 
-  /* Re-check every hour while app stays open (e.g. overnight tab) */
   setInterval(() => {
     if (document.visibilityState === "visible" && needsRefresh()) {
       loadDevotionals({ silent: true });
     }
   }, 60 * 60 * 1000);
+}
+
+function unregisterServiceWorkers() {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then((regs) => {
+      regs.forEach((reg) => reg.unregister());
+    });
+  }
 }
 
 function navigateDay(offset) {
@@ -410,32 +405,6 @@ function navigateDay(offset) {
   state.selectedDate = next;
   buildDateStrip();
   renderSelectedDate();
-}
-
-function registerServiceWorker() {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js").catch(console.error);
-  }
-}
-
-function setupInstallPrompt() {
-  window.addEventListener("beforeinstallprompt", (event) => {
-    event.preventDefault();
-    state.deferredPrompt = event;
-    els.installBanner.classList.remove("hidden");
-  });
-
-  els.installBtn.addEventListener("click", async () => {
-    if (!state.deferredPrompt) return;
-    state.deferredPrompt.prompt();
-    await state.deferredPrompt.userChoice;
-    state.deferredPrompt = null;
-    els.installBanner.classList.add("hidden");
-  });
-
-  els.installDismiss.addEventListener("click", () => {
-    els.installBanner.classList.add("hidden");
-  });
 }
 
 function setupShare() {
@@ -455,11 +424,6 @@ function setupShare() {
 }
 
 function bindEvents() {
-  if (state.lang === "hi") {
-    state.lang = "en";
-    localStorage.setItem(STORAGE_LANG, "en");
-  }
-
   els.langSelect.value = state.lang;
   applyUiStrings(state.lang);
 
@@ -472,6 +436,7 @@ function bindEvents() {
   });
 
   els.todayBtn.addEventListener("click", async () => {
+    await loadDevotionals();
     const dates = sortedDates();
     if (!dates.length) return;
     state.selectedDate = pickDefaultDate(dates);
@@ -490,8 +455,7 @@ function bindEvents() {
 
 initTheme();
 bindEvents();
-setupInstallPrompt();
 setupShare();
-registerServiceWorker();
+unregisterServiceWorkers();
 setupAutoRefresh();
 loadDevotionals();
