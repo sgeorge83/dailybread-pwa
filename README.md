@@ -101,9 +101,22 @@ Open [http://localhost:8080](http://localhost:8080)
 
 ## Deploy on GitHub Pages
 
-1. Push this repo to `github.com/sgeorge83/dailybread-pwa`
-2. GitHub → **Settings → Pages → Build and deployment → GitHub Actions**
-3. The workflow in `.github/workflows/pages.yml` publishes on push to `main`
+### One-time setup (required)
+
+The workflow fails with `Get Pages site failed` until Pages is enabled on the repository:
+
+1. Open **https://github.com/sgeorge83/dailybread-pwa/settings/pages**
+2. Under **Build and deployment → Source**, choose **GitHub Actions** (not “Deploy from a branch”)
+3. Save — GitHub creates the `github-pages` environment automatically
+4. Re-run the failed workflow: **Actions → Deploy GitHub Pages → Re-run all jobs**
+
+Or push any commit to `main` after enabling Pages.
+
+**Live URL after deploy:** https://sgeorge83.github.io/dailybread-pwa/
+
+### Automatic deploys
+
+The workflow in `.github/workflows/pages.yml` runs on every push to `main`. It uses the official GitHub Pages actions (Node 24 runtime) and uploads the static site root.
 
 ## APIs used
 
