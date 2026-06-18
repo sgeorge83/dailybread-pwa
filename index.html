@@ -2,262 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Daily Bread — Our Daily Bread devotionals with multilingual scripture">
+  <meta name="theme-color" content="#1e3a5f">
 
-  <title>Daily Devotional</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Daily Bread">
 
-  <meta name="theme-color" content="#1f2937">
+  <title>Daily Bread</title>
   <link rel="manifest" href="manifest.json">
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f4f6;
-      padding: 20px;
-    }
-
-    .app {
-      max-width: 900px;
-      margin: auto;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .calendar-box {
-      background: white;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-
-    #calendarPicker {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      font-size: 16px;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-
-    .date, .author {
-      color: #6b7280;
-      font-size: 14px;
-      margin-bottom: 5px;
-    }
-
-    audio {
-      width: 100%;
-      margin: 10px 0;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 10px 15px;
-      background: #1f2937;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
-
-    .section {
-      margin-top: 15px;
-      padding: 15px;
-      background: #f9fafb;
-      border-left: 4px solid #1f2937;
-      border-radius: 10px;
-      white-space: pre-line;
-    }
-  </style>
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
-
 <body>
-
-<div class="app">
-
-  <header>
-    <h1>Daily Devotional</h1>
-  </header>
-
-  <div class="calendar-box">
-    <label>Select Date</label>
-    <input type="date" id="calendarPicker">
+  <div id="install-banner" class="install-banner hidden" role="region" aria-label="Install app">
+    <span data-i18n="installPrompt">Install Daily Bread for offline reading</span>
+    <button id="install-btn" type="button" data-i18n="install">Install</button>
+    <button id="install-dismiss" type="button" aria-label="Dismiss">&times;</button>
   </div>
 
-  <div id="content">Loading...</div>
-
-</div>
-
-<script>
-
-const FEED_URL =
-  "https://api.allorigins.win/raw?url=" +
-  encodeURIComponent(
-    "https://api.experience.odb.org/devotionals/podcast/?country=US"
-  );
-
-const devotionalMap = {};
-
-async function loadFeed() {
-  try {
-
-    const res = await fetch(FEED_URL);
-    const xmlText = await res.text();
-
-    const xml = new DOMParser().parseFromString(xmlText, "text/xml");
-    const items = xml.querySelectorAll("item");
-
-    items.forEach(item => {
-
-      const title = item.querySelector("title")?.textContent || "";
-      const link = item.querySelector("link")?.textContent || "";
-      const pubDate = item.querySelector("pubDate")?.textContent || "";
-      const desc = item.querySelector("description")?.textContent || "";
-
-      const author =
-        item.querySelector("author")?.textContent ||
-        item.querySelector("dc\\:creator")?.textContent ||
-        "";
-
-      const enclosure = item.querySelector("enclosure");
-      const audioUrl = enclosure ? enclosure.getAttribute("url") : null;
-
-      // ✅ FIXED DATE (IMPORTANT)
-      const d = new Date(pubDate);
-      const key = d.toISOString().split("T")[0];
-
-      let response = "";
-      let thought = "";
-
-      const raw = item.textContent;
-
-      const r = raw.match(/"response"\s*:\s*"([\s\S]*?)"/);
-      const t = raw.match(/"thought"\s*:\s*"([\s\S]*?)"/);
-
-      if (r) response = r[1];
-      if (t) thought = t[1];
-
-      devotionalMap[key] = {
-        title,
-        link,
-        pubDate,
-        desc,
-        audioUrl,
-        author,
-        response,
-        thought
-      };
-
-    });
-
-    const picker = document.getElementById("calendarPicker");
-    const dates = Object.keys(devotionalMap).sort().reverse();
-
-    if (!dates.length) {
-      document.getElementById("content").innerHTML =
-        "<div class='card'>No devotional data found</div>";
-      return;
-    }
-
-    picker.max = dates[0];
-    picker.min = dates[dates.length - 1];
-    picker.value = dates[0];
-
-    renderDevotional(dates[0]);
-
-    picker.addEventListener("change", function () {
-      renderDevotional(this.value);
-    });
-
-  } catch (e) {
-    console.error(e);
-    document.getElementById("content").innerHTML =
-      "<div class='card'>Failed to load devotional feed</div>";
-  }
-}
-
-function extractScripture(text) {
-  const match = text.match(/([A-Z][a-z]+ \d+:\d+[-\d:]*)/);
-  return match ? match[1] : "";
-}
-
-function cleanText(text) {
-  return (text || "")
-    .replace(/<[^>]*>/g, "")
-    .replace(/&ldquo;|&rdquo;/g, '"')
-    .replace(/&rsquo;/g, "'");
-}
-
-function renderDevotional(dateKey) {
-
-  const d = devotionalMap[dateKey];
-  const content = document.getElementById("content");
-
-  if (!d) {
-    content.innerHTML = "<div class='card'>No devotional found</div>";
-    return;
-  }
-
-  const scripture = extractScripture(d.desc);
-  const clean = cleanText(d.desc);
-
-  content.innerHTML = `
-    <div class="card">
-
-      <h3>Today's Scripture & Insight</h3>
-      <h2>${scripture || d.title}</h2>
-
-      <div class="date">${d.pubDate}</div>
-
-      ${d.author ? `<div class="author">By ${d.author}</div>` : ""}
-
-      ${d.audioUrl ? `
-        <audio controls>
-          <source src="${d.audioUrl}" type="audio/mpeg">
-        </audio>
-      ` : ""}
-
-      <div>${clean}</div>
-
-      ${d.response || d.thought ? `
-        <div class="section">
-
-          <strong>Reflect</strong>
-          <div>${cleanText(d.response || "")}</div>
-
-          <br>
-
-          <strong>Pray</strong>
-          <div>${cleanText(d.thought || "")}</div>
-
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand">
+        <img src="icons/icon.svg" alt="" width="36" height="36" class="brand-icon">
+        <div>
+          <h1 data-i18n="appTitle">Daily Bread</h1>
+          <p class="subtitle" data-i18n="appSubtitle">Our Daily Bread Devotional</p>
         </div>
-      ` : ""}
-
-      <a class="btn" href="${d.link}" target="_blank">
-        Read Full Devotional
-      </a>
-
+      </div>
+      <div class="header-actions">
+        <button id="theme-toggle" type="button" class="icon-btn" aria-label="Toggle theme">&#9788;</button>
+        <button id="share-btn" type="button" class="icon-btn hidden" aria-label="Share">&#8599;</button>
+      </div>
     </div>
-  `;
-}
 
-loadFeed();
+    <div class="controls">
+      <div class="control-group">
+        <label for="lang-select" data-i18n="language">Language</label>
+        <select id="lang-select" aria-label="Language">
+          <option value="en">English</option>
+          <option value="ur">&#1575;&#1585;&#1583;&#1608; (Urdu)</option>
+          <option value="hi">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368; (Hindi)</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="date-picker" data-i18n="selectDate">Select date</label>
+        <input type="date" id="date-picker">
+      </div>
+      <button id="today-btn" type="button" class="secondary-btn" data-i18n="today">Today</button>
+    </div>
+  </header>
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
-}
+  <main id="main" class="main">
+    <div id="status" class="status" role="status">
+      <div class="spinner" aria-hidden="true"></div>
+      <span data-i18n="loading">Loading today&apos;s devotional...</span>
+    </div>
+    <article id="devotional" class="devotional hidden" aria-live="polite"></article>
+  </main>
 
-</script>
+  <footer class="app-footer">
+    <p>
+      <span data-i18n="sourceCredit">Devotional content from</span>
+      <a href="https://odb.org" target="_blank" rel="noopener">Our Daily Bread Ministries</a>.
+      <span data-i18n="urduCredit">Urdu scripture from</span>
+      <a href="https://urdu-bible-api.vercel.app" target="_blank" rel="noopener">Urdu Bible API</a>.
+    </p>
+  </footer>
 
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>

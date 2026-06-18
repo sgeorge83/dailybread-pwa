@@ -1,0 +1,370 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --surface-muted: #f0f3f8;
+  --text: #1a2332;
+  --text-muted: #5c6b7a;
+  --accent: #1e3a5f;
+  --accent-soft: #e8eef5;
+  --border: #d8e0ea;
+  --shadow: 0 8px 24px rgba(15, 35, 60, 0.08);
+  --radius: 16px;
+  --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-urdu: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Urdu Typesetting", serif;
+  --font-hindi: "Noto Sans Devanagari", "Mangal", sans-serif;
+}
+
+[data-theme="dark"] {
+  --bg: #0f1419;
+  --surface: #1a2332;
+  --surface-muted: #243044;
+  --text: #eef2f7;
+  --text-muted: #9aa8b8;
+  --accent: #7eb3ff;
+  --accent-soft: #243044;
+  --border: #334155;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+}
+
+body[dir="rtl"] {
+  font-family: var(--font-urdu);
+}
+
+body[lang="hi"] {
+  font-family: var(--font-hindi), var(--font-ui);
+}
+
+a {
+  color: var(--accent);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.install-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--accent);
+  color: #fff;
+}
+
+.install-banner button {
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+}
+
+#install-btn {
+  margin-left: auto;
+  padding: 0.45rem 0.9rem;
+  background: #fff;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+#install-dismiss {
+  background: transparent;
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.app-header,
+.main,
+.app-footer {
+  width: min(920px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.app-header {
+  padding: 1.25rem 0 0.75rem;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: 0.15rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.icon-btn,
+.secondary-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.icon-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.1rem;
+}
+
+.secondary-btn {
+  padding: 0.65rem 1rem;
+  font: inherit;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.control-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.control-group select,
+.control-group input[type="date"] {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-muted);
+  color: var(--text);
+  font: inherit;
+}
+
+.main {
+  padding: 1rem 0 2rem;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.devotional {
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.hero-image {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 1.25rem 1.35rem 1.4rem;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.meta-row .chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.devotional h2 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  line-height: 1.25;
+}
+
+.passage-ref {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.section {
+  margin-top: 1rem;
+  padding: 1rem 1.05rem;
+  border-radius: 12px;
+  background: var(--surface-muted);
+  border-inline-start: 4px solid var(--accent);
+}
+
+.section h3 {
+  margin: 0 0 0.65rem;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.section p,
+.content-block p {
+  margin: 0 0 0.85rem;
+}
+
+.section p:last-child,
+.content-block p:last-child {
+  margin-bottom: 0;
+}
+
+.urdu-text {
+  font-family: var(--font-urdu);
+  font-size: 1.15rem;
+  line-height: 2;
+  direction: rtl;
+  text-align: right;
+}
+
+.verse-item {
+  margin-bottom: 0.65rem;
+}
+
+.verse-num {
+  color: var(--accent);
+  font-weight: 700;
+  margin-inline-end: 0.35rem;
+}
+
+.notice {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+audio {
+  width: 100%;
+  margin: 0.75rem 0 0.25rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.primary-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff !important;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.app-footer {
+  padding: 0 0 2rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  #today-btn {
+    width: 100%;
+  }
+}
