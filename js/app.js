@@ -90,14 +90,19 @@ function initTheme() {
   setTheme(saved || (prefersDark ? "dark" : "light"));
 }
 
-function showStatus(messageKey, isError = false) {
+function showStatus(messageKey, isError = false, showRetry = false) {
   els.status.classList.remove("hidden");
   els.devotional.classList.add("hidden");
   els.status.innerHTML = `
     <div class="spinner" aria-hidden="true"></div>
     <span>${escapeHtml(t(state.lang, messageKey))}</span>
+    ${showRetry ? `<button type="button" class="retry-btn" id="retry-btn">${escapeHtml(t(state.lang, "retry"))}</button>` : ""}
   `;
   els.status.style.borderColor = isError ? "#c0392b" : "";
+
+  if (showRetry) {
+    document.getElementById("retry-btn")?.addEventListener("click", () => loadDevotionals());
+  }
 }
 
 function hideStatus() {
@@ -351,7 +356,7 @@ async function loadDevotionals(options = {}) {
   const previousCount = previousDates.length;
 
   try {
-    const map = await fetchDevotionals();
+    const map = await fetchDevotionalsWithRetry();
     const newDates = [...map.keys()].sort();
     const newMax = newDates.at(-1) ?? "";
     const calendarChanged =
@@ -366,7 +371,7 @@ async function loadDevotionals(options = {}) {
     }
   } catch (error) {
     console.error(error);
-    if (!silent) showStatus("onlineRequired", true);
+    if (!silent) showStatus("onlineRequired", true, true);
     return false;
   }
 
@@ -389,11 +394,28 @@ function setupAutoRefresh() {
   }, 60 * 60 * 1000);
 }
 
-function unregisterServiceWorkers() {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.getRegistrations().then((regs) => {
-      regs.forEach((reg) => reg.unregister());
-    });
+async function fetchDevotionalsWithRetry(attempts = 3) {
+  let lastError;
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      return await fetchDevotionals();
+    } catch (error) {
+      lastError = error;
+      if (i < attempts - 1) await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+    }
+  }
+  throw lastError;
+}
+
+async function clearLegacyServiceWorkers() {
+  if (!("serviceWorker" in navigator)) return;
+
+  const regs = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(regs.map((reg) => reg.unregister()));
+
+  if ("caches" in window) {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((key) => caches.delete(key)));
   }
 }
 
@@ -456,6 +478,5 @@ function bindEvents() {
 initTheme();
 bindEvents();
 setupShare();
-unregisterServiceWorkers();
 setupAutoRefresh();
-loadDevotionals();
+clearLegacyServiceWorkers().finally(() => loadDevotionals());

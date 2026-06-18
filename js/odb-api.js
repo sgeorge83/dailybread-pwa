@@ -43,15 +43,17 @@ export function normalizeDevotional(item) {
 }
 
 export async function fetchDevotionals() {
-  const response = await fetch(ODB_API, {
-    cache: "no-store",
-    headers: { "Cache-Control": "no-cache" },
-  });
+  // Do NOT add custom headers — they trigger CORS preflight which ODB blocks.
+  const response = await fetch(ODB_API, { cache: "no-store" });
   if (!response.ok) {
     throw new Error(`ODB API error: ${response.status}`);
   }
 
   const data = await response.json();
+  if (!Array.isArray(data) || !data.length) {
+    throw new Error("ODB API returned empty data");
+  }
+
   const map = new Map();
 
   for (const item of data) {
