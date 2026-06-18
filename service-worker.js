@@ -1,4 +1,4 @@
-const CACHE_NAME = "dailybread-shell-v6";
+const CACHE_NAME = "dailybread-shell-v7";
 
 const APP_SHELL = [
   "./",

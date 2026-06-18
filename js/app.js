@@ -268,7 +268,7 @@ function renderDevotionalCard(devotional, urduPassage) {
       html: `
         ${translateNote}
         ${devotional.bibleInYear ? `<h4>${escapeHtml(t(state.lang, "bibleInYear"))}</h4><p>${escapeHtml(devotional.bibleInYear)}</p>` : ""}
-        ${devotional.audioUrl ? `<audio controls preload="none" src="${escapeHtml(devotional.audioUrl)}"></audio>` : ""}
+        ${devotional.audioUrl ? `<h4>${escapeHtml(t(state.lang, "listen"))}</h4><audio controls preload="none" src="${escapeHtml(devotional.audioUrl)}"></audio>` : ""}
         <div class="actions">
           <a class="primary-link" href="${escapeHtml(devotional.odbUrl)}" target="_blank" rel="noopener">${escapeHtml(t(state.lang, "readFull"))}</a>
           ${devotional.passageUrl ? `<a class="primary-link subtle-link" href="${escapeHtml(devotional.passageUrl)}" target="_blank" rel="noopener">${escapeHtml(t(state.lang, "englishPassage"))}</a>` : ""}
@@ -523,9 +523,18 @@ function setupShare() {
   }
 }
 
+function applyLayoutMode() {
+  const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+  document.body.classList.toggle("layout-desktop", isDesktop);
+  document.body.classList.toggle("layout-mobile", !isDesktop);
+}
+
 function bindEvents() {
   els.langSelect.value = state.lang;
   applyUiStrings(state.lang);
+  applyLayoutMode();
+
+  window.addEventListener("resize", applyLayoutMode);
 
   els.langSelect.addEventListener("change", async (event) => {
     state.lang = event.target.value;

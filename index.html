@@ -42,7 +42,7 @@
     <header class="app-header">
       <div class="header-row">
         <div class="brand">
-          <img src="icons/icon.svg" alt="" width="36" height="36" class="brand-icon">
+          <img src="icons/icon.svg" alt="" width="40" height="40" class="brand-icon">
           <div>
             <h1 data-i18n="appTitle">Daily Bread</h1>
             <p class="subtitle" data-i18n="appSubtitle">Our Daily Bread Devotional</p>
@@ -50,8 +50,8 @@
         </div>
         <div class="toolbar">
           <select id="lang-select" class="toolbar-select" aria-label="Language">
-            <option value="en">EN</option>
-            <option value="ur">UR</option>
+            <option value="en">English</option>
+            <option value="ur">&#1575;&#1585;&#1583;&#1608;</option>
           </select>
           <button id="today-btn" type="button" class="toolbar-btn" data-i18n="today">Today</button>
           <button id="install-app-btn" type="button" class="icon-btn install-header-btn hidden" aria-label="Install app">&#8681;</button>
@@ -59,26 +59,32 @@
           <button id="share-btn" type="button" class="icon-btn hidden" aria-label="Share">&#8599;</button>
         </div>
       </div>
-
-      <div class="meta-bar">
-        <span id="date-range" class="range-value">—</span>
-        <span id="last-synced" class="sync-hint"></span>
-      </div>
-
-      <div class="date-nav" aria-label="Date navigation">
-        <button id="prev-day" type="button" class="nav-arrow" aria-label="Previous day">&#8249;</button>
-        <div id="date-strip" class="date-strip" role="tablist"></div>
-        <button id="next-day" type="button" class="nav-arrow" aria-label="Next day">&#8250;</button>
-      </div>
     </header>
 
-    <main id="main" class="main">
-      <div id="status" class="status" role="status">
-        <div class="spinner" aria-hidden="true"></div>
-        <span data-i18n="loading">Loading devotional...</span>
-      </div>
-      <article id="devotional" class="devotional hidden" aria-live="polite"></article>
-    </main>
+    <div class="layout-grid">
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <div class="meta-bar">
+            <span class="range-label" data-i18n="availableRange">Available devotionals</span>
+            <span id="date-range" class="range-value">—</span>
+            <span id="last-synced" class="sync-hint"></span>
+          </div>
+          <div class="date-nav" aria-label="Date navigation">
+            <button id="prev-day" type="button" class="nav-arrow" aria-label="Previous day">&#8249;</button>
+            <div id="date-strip" class="date-strip" role="tablist"></div>
+            <button id="next-day" type="button" class="nav-arrow" aria-label="Next day">&#8250;</button>
+          </div>
+        </div>
+      </aside>
+
+      <main id="main" class="main">
+        <div id="status" class="status" role="status">
+          <div class="spinner" aria-hidden="true"></div>
+          <span data-i18n="loading">Loading devotional...</span>
+        </div>
+        <article id="devotional" class="devotional hidden" aria-live="polite"></article>
+      </main>
+    </div>
 
     <footer class="app-footer">
       <span data-i18n="developerCredit">Developed by</span>
